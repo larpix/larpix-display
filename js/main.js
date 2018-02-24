@@ -63,15 +63,18 @@ var metadata = {
   'data': [[]],
   'camera': 'orthographic'
 };
+var hitMeshes = [];
 var hitIndex = gui.add(metadata, 'index', 0, 1000).step(1);
 var nHits = gui.add(metadata, 'nhits', 0, 1000).step(1);
 var minIndex = gui.add(metadata, 'min_index', 0, 1000).step(1);
 var maxIndex = gui.add(metadata, 'max_index', 0, 1000).step(1);
 var cameraSelector = gui.add(metadata, 'camera', ['orthographic', 'perspective']);
 hitIndex.onChange(function(newIndex) {
+  clearObjects(hitMeshes);
   loadHits(metadata);
 });
 nHits.onChange(function(newNHits) {
+  clearObjects(hitMeshes);
   loadHits(metadata);
 });
 minIndex.onChange(function(newMin) {
@@ -83,6 +86,12 @@ maxIndex.onChange(function(newMax) {
 cameraSelector.onChange(function(newCamera) {
   camera = cameras[newCamera];
 });
+
+function clearObjects(objectsToClear) {
+  while(objectsToClear.length > 0) {
+    scene.remove(objectsToClear.pop());
+  }
+};
 
 function loadHits(gui_metadata) {
   data = gui_metadata['data'];
@@ -101,6 +110,7 @@ function loadHits(gui_metadata) {
     hitMesh.position.y = y+pixelOffset.y;
     hitMesh.rotation.x = 3.14159/2;
     scene.add(hitMesh);
+    hitMeshes.push(hitMesh);
   }
 };
 

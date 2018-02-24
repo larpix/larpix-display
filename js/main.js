@@ -13,7 +13,8 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 var pixelPadGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.1);
-var pixelPadMaterial = new THREE.MeshBasicMaterial({color:0x00ff00});
+var activePixelPadMaterial = new THREE.MeshBasicMaterial({color:0x00ff00});
+var inactivePixelPadMaterial = new THREE.MeshBasicMaterial({color:0x005500});
 
 scene.background = new THREE.Color(0xa7a7a7);
 perspectiveControls = new THREE.OrbitControls(perspectiveCamera, renderer.domElement);
@@ -24,11 +25,18 @@ var pixelOffset = {'x': -100, 'y': -100};
 $.get('sensor_plane_28_simple.txt', function(rawPixelGeometry) {
   pixelGeometry = jsyaml.load(rawPixelGeometry);
   pixels = pixelGeometry['pixels'];
+  chips = pixelGeometry['chips'];
+  activePixels = [].concat(chips[0][1], chips[1][1], chips[2][1], chips[3][1]);
   for(var i = 0; i < pixels.length; i++) {
     pixel = pixels[i];
     x = pixel[1]+pixelOffset.x;
     y = pixel[2]+pixelOffset.y;
-    pixelMesh = new THREE.Mesh(pixelPadGeometry, pixelPadMaterial);
+    if(activePixels.indexOf(pixel[0]) >= 0) {
+      pixelMesh = new THREE.Mesh(pixelPadGeometry, activePixelPadMaterial);
+    }
+    else {
+      pixelMesh = new THREE.Mesh(pixelPadGeometry, inactivePixelPadMaterial);
+    }
     pixelMesh.position.z = 0;
     pixelMesh.position.x = x;
     pixelMesh.position.y = y;

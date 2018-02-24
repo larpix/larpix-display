@@ -1,5 +1,12 @@
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+var perspectiveCamera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+var orthographicCamera = new THREE.OrthographicCamera(-window.innerWidth/2, window.innerWidth/2, window.innerHeight/2, -window.innerHeight/2, 0.1, 1000);
+var camera = perspectiveCamera;
+var cameras = {'orthographic': orthographicCamera, 'perspective': perspectiveCamera};
+perspectiveCamera.position.z = 80;
+orthographicCamera.position.z = 80;
+orthographicCamera.zoom = 5;
+orthographicCamera.updateProjectionMatrix();
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -7,10 +14,10 @@ document.body.appendChild(renderer.domElement);
 
 var pixelPadGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.1);
 var pixelPadMaterial = new THREE.MeshBasicMaterial({color:0x00ff00});
-camera.position.z = 80;
 
 scene.background = new THREE.Color(0xa7a7a7);
-controls = new THREE.OrbitControls(camera, renderer.domElement);
+perspectiveControls = new THREE.OrbitControls(perspectiveCamera, renderer.domElement);
+orthographicControls = new THREE.OrbitControls(orthographicCamera, renderer.domElement);
 
 var pixelOffset = {'x': -100, 'y': -100};
 
@@ -40,15 +47,20 @@ var gui = new dat.GUI();
 var metadata = {
   'index': 0,
   'nhits': 10,
-  'data': [[]]
+  'data': [[]],
+  'camera': 'orthographic'
 };
 var hitIndex = gui.add(metadata, 'index', 0, 1000);
 var nHits = gui.add(metadata, 'nhits', 0, 1000);
+var cameraSelector = gui.add(metadata, 'camera', ['orthographic', 'perspective']);
 hitIndex.onChange(function(newIndex) {
   loadHits(newIndex, metadata['nhits']);
 });
 nHits.onChange(function(newNHits) {
   loadHits(metadata['index'], newNHits);
+});
+cameraSelector.onChange(function(newCamera) {
+  camera = cameras[newCamera];
 });
 
 function loadHits(metadata) {

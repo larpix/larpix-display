@@ -49,34 +49,47 @@ $.get('sensor_plane_28_simple.txt', function(rawPixelGeometry) {
 $.getJSON('test.json', function(data) {
   metadata['data'] = data;
   loadHits(metadata);
+  gui.__controllers[0].__max = data.length;
+  gui.__controllers[2].__max = data.length;
+  gui.__controllers[3].__max = data.length;
 });
 
 var gui = new dat.GUI();
 var metadata = {
   'index': 0,
+  'min_index': 0,
+  'max_index': 1000,
   'nhits': 10,
   'data': [[]],
   'camera': 'orthographic'
 };
-var hitIndex = gui.add(metadata, 'index', 0, 1000);
-var nHits = gui.add(metadata, 'nhits', 0, 1000);
+var hitIndex = gui.add(metadata, 'index', 0, 1000).step(1);
+var nHits = gui.add(metadata, 'nhits', 0, 1000).step(1);
+var minIndex = gui.add(metadata, 'min_index', 0, 1000).step(1);
+var maxIndex = gui.add(metadata, 'max_index', 0, 1000).step(1);
 var cameraSelector = gui.add(metadata, 'camera', ['orthographic', 'perspective']);
 hitIndex.onChange(function(newIndex) {
-  loadHits(newIndex, metadata['nhits']);
+  loadHits(metadata);
 });
 nHits.onChange(function(newNHits) {
-  loadHits(metadata['index'], newNHits);
+  loadHits(metadata);
+});
+minIndex.onChange(function(newMin) {
+  gui.__controllers[0].__min = newMin;
+});
+maxIndex.onChange(function(newMax) {
+  gui.__controllers[0].__max = newMax;
 });
 cameraSelector.onChange(function(newCamera) {
   camera = cameras[newCamera];
 });
 
-function loadHits(metadata) {
-  data = metadata['data'];
-  index = metadata['index'];
-  nhits = metadata['nhits'];
+function loadHits(gui_metadata) {
+  data = gui_metadata['data'];
+  index = gui_metadata['index'];
+  nhits = gui_metadata['nhits'];
   hitMaterial = new THREE.MeshBasicMaterial({color: 0x0000ff});
-  for(var i = 0; i < nhits; i++) {
+  for(var i = 0; i < nhits && i + index < data.length; i++) {
     hit = data[index + i];
     x = hit[3]/10.0;
     y = hit[4]/10.0;

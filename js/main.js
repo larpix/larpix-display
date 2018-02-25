@@ -64,10 +64,10 @@ var metadata = {
   'camera': 'orthographic'
 };
 var hitMeshes = [];
-var hitIndex = gui.add(metadata, 'index', 0, 1000).step(1);
+var hitIndex = gui.add(metadata, 'index', 0, 20000).step(1);
 var nHits = gui.add(metadata, 'nhits', 0, 1000).step(1);
-var minIndex = gui.add(metadata, 'min_index', 0, 1000).step(1);
-var maxIndex = gui.add(metadata, 'max_index', 0, 1000).step(1);
+var minIndex = gui.add(metadata, 'min_index', 0, 20000).step(1);
+var maxIndex = gui.add(metadata, 'max_index', 0, 20000).step(1);
 var cameraSelector = gui.add(metadata, 'camera', ['orthographic', 'perspective']);
 hitIndex.onChange(function(newIndex) {
   clearObjects(hitMeshes);

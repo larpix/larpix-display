@@ -1,16 +1,22 @@
 var scene = new THREE.Scene();
 var perspectiveCamera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 var orthographicCamera = new THREE.OrthographicCamera(-window.innerWidth/2, window.innerWidth/2, window.innerHeight/2, -window.innerHeight/2, 0.1, 1000);
+var spriteCamera = orthographicCamera.clone();
+var spriteScene = new THREE.Scene();
 var camera = orthographicCamera;
 var cameras = {'orthographic': orthographicCamera, 'perspective': perspectiveCamera};
 perspectiveCamera.position.z = 80;
 orthographicCamera.position.z = 80;
 orthographicCamera.zoom = 5;
 orthographicCamera.updateProjectionMatrix();
+spriteCamera.position.z = 80;
+spriteCamera.zoom = 6;
+spriteCamera.updateProjectionMatrix();
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+renderer.autoClear = false;
 
 var pixelPadGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.1);
 var activePixelPadMaterial = new THREE.MeshBasicMaterial({color:0x00ff00});
@@ -113,8 +119,9 @@ function placeText(text, position, fillColor, strokeColor, fontSize) {
       );
   scale = 0.05;
   mesh.scale.set(scale, scale, scale);
-  mesh.position.set(position[0] + canvas.width*scale/2, position[1], position[2]);
-  scene.add(mesh);
+  mesh.position.set(position[0] + canvas.width/2 * scale, position[1], position[2]);
+  spriteScene.add(mesh);
+
   return mesh;
 };
 
@@ -127,7 +134,6 @@ function loadColorMap(scale, position) {
   width = 6;
   height = 0.5;
   depth = 0.1;
-  swatchGeometry = new THREE.BoxGeometry(width, height, depth);
   inputs = [];
   colors = [];
   materials = [];
@@ -135,10 +141,12 @@ function loadColorMap(scale, position) {
   for(var i = 0; i < nSwatches; i++) {
     inputs.push(low + i*delta);
     colors.push(scale(inputs[i]).hex());
-    materials.push(new THREE.MeshBasicMaterial({color: colors[i]}));
-    swatches.push(new THREE.Mesh(swatchGeometry, materials[i]));
+    materials.push(new THREE.SpriteMaterial({color: colors[i]}));
+    swatches.push(new THREE.Sprite(materials[i]));
     swatches[i].position.set(position[0], position[1]+i*height, position[2]);
-    scene.add(swatches[i]);
+    swatches[i].scale.set(width, height, 1);
+    swatches[i].transparent = false;
+    spriteScene.add(swatches[i]);
   }
   mesh = placeText(low,
       [position[0] + width, position[1], position[2]],
@@ -198,6 +206,9 @@ function loadHits(gui_metadata) {
 
 function animate() {
   requestAnimationFrame(animate);
+  renderer.clear();
   renderer.render(scene, camera);
+  renderer.clearDepth();
+  renderer.render(spriteScene, spriteCamera);
 };
 animate();

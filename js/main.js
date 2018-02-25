@@ -1,7 +1,7 @@
 var scene = new THREE.Scene();
 var perspectiveCamera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 var orthographicCamera = new THREE.OrthographicCamera(-window.innerWidth/2, window.innerWidth/2, window.innerHeight/2, -window.innerHeight/2, 0.1, 1000);
-var camera = perspectiveCamera;
+var camera = orthographicCamera;
 var cameras = {'orthographic': orthographicCamera, 'perspective': perspectiveCamera};
 perspectiveCamera.position.z = 80;
 orthographicCamera.position.z = 80;
@@ -93,25 +93,34 @@ function clearObjects(objectsToClear) {
   }
 };
 
+var adcScale = chroma.scale(['#dc7467', '#a7af49']).mode('hcl').domain([30, 64]);
 function loadHits(gui_metadata) {
   data = gui_metadata['data'];
   index = gui_metadata['index'];
   nhits = gui_metadata['nhits'];
-  hitMaterial = new THREE.MeshBasicMaterial({color: 0x0000ff});
+  adcs = [];
+  times = [];
   for(var i = 0; i < nhits && i + index < data.length; i++) {
     hit = data[index + i];
     x = hit[3]/10.0;
     y = hit[4]/10.0;
     adc = hit[7];
     time = hit[8] - data[index][8];
-    hitMesh = new THREE.Mesh(pixelPadGeometry, hitMaterial);
-    hitMesh.position.z = 10;
+    z = time/1000;
+    hitMaterial = new THREE.MeshBasicMaterial({color: adcScale(adc).hex()});
+    hitGeometry = new THREE.CylinderGeometry(1, 1, 1);
+    hitMesh = new THREE.Mesh(hitGeometry, hitMaterial);
+    hitMesh.position.z = z;
     hitMesh.position.x = x+pixelOffset.x;
     hitMesh.position.y = y+pixelOffset.y;
     hitMesh.rotation.x = 3.14159/2;
     scene.add(hitMesh);
     hitMeshes.push(hitMesh);
+    adcs.push(adc);
+    times.push(time);
   }
+  console.log(adcs);
+  console.log(times);
 };
 
 function animate() {

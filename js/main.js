@@ -93,7 +93,80 @@ function clearObjects(objectsToClear) {
   }
 };
 
-var adcScale = chroma.scale(['#dc7467', '#a7af49']).mode('hcl').domain([30, 64]);
+function placeText(text, position, fillColor, strokeColor, fontSize) {
+  canvas = document.createElement('canvas');
+  canvas.height = 100;
+  canvas.width = 350;
+  context = canvas.getContext('2d');
+  context.font = fontSize + ' Arial';
+  context.fillStyle = fillColor;
+  context.strokeStyle = strokeColor;
+  context.fillText(text, 30, 80);
+  context.strokeText(text, 30, 80);
+  texture = new THREE.Texture(canvas);
+  texture.needsUpdate = true;
+  material = new THREE.MeshBasicMaterial({map: texture, side:THREE.DoubleSide});
+  material.transparent = true;
+  mesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(canvas.width, canvas.height),
+      material
+      );
+  scale = 0.05;
+  mesh.scale.set(scale, scale, scale);
+  mesh.position.set(position[0] + canvas.width*scale/2, position[1], position[2]);
+  scene.add(mesh);
+  return mesh;
+};
+
+function loadColorMap(scale, position) {
+  nSwatches = 60;
+  domain = scale.domain();
+  low = domain[0];
+  diff = domain[1] - low;
+  delta = diff/(nSwatches-1);
+  width = 6;
+  height = 0.5;
+  depth = 0.1;
+  swatchGeometry = new THREE.BoxGeometry(width, height, depth);
+  inputs = [];
+  colors = [];
+  materials = [];
+  swatches = [];
+  for(var i = 0; i < nSwatches; i++) {
+    inputs.push(low + i*delta);
+    colors.push(scale(inputs[i]).hex());
+    materials.push(new THREE.MeshBasicMaterial({color: colors[i]}));
+    swatches.push(new THREE.Mesh(swatchGeometry, materials[i]));
+    swatches[i].position.set(position[0], position[1]+i*height, position[2]);
+    scene.add(swatches[i]);
+  }
+  mesh = placeText(low,
+      [position[0] + width, position[1], position[2]],
+      colors[0],
+      colors[nSwatches-1],
+      '80px'
+  );
+  mesh = placeText(low+diff,
+      [position[0] + width, position[1] + nSwatches * height, position[2]],
+      colors[nSwatches-1],
+      colors[0],
+      '80px'
+  );
+  mesh = placeText('ADCs',
+      [position[0] - 3, position[1] + nSwatches*height + 5, position[2]],
+      colors[Math.floor(nSwatches/2)],
+      colors[Math.floor(nSwatches/2)],
+      '80px'
+  );
+
+};
+var adcScale = chroma.cubehelix()
+  .lightness([0.1, 0.9])
+  .start(300)
+  .hue(2)
+  .gamma(1)
+  .rotations(-1).scale().domain([30, 64]);
+loadColorMap(adcScale, [60, 0, 0]);
 function loadHits(gui_metadata) {
   data = gui_metadata['data'];
   index = gui_metadata['index'];

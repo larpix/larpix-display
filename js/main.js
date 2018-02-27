@@ -82,6 +82,28 @@ var gui_controls = {
   'reset': function() {
     reset_camera(cameras);
   }
+};
+var gui_colors = {
+  'background': '#a7a7a7',
+  'active_pixel': '#00ff00',
+  'inactive_pixel': '#005500',
+  '_background_color': function(x) { scene.background.set(x); },
+  '_active_pixel_color': function(x) { activePixelPadMaterial.color.set(x); },
+  '_inactive_pixel_color': function(x) { inactivePixelPadMaterial.color.set(x); },
+  '_backup': {},
+  '_reset': function() {
+    for(key in gui_colors._backup) {
+      gui_key = key.substr(1);
+      gui_colors[gui_key] = gui_colors._backup[key];
+      color_key = key + '_color';
+      gui_colors[color_key](gui_colors[gui_key]);
+    }
+  },
+  '_night': false
+};
+for(key in gui_colors) {
+  if(key[0] == '_') { continue; }
+  gui_colors._backup['_' + key] = gui_colors[key];
 }
 var hitMeshes = [];
 var hitIndex = gui.add(metadata, 'index', 0, 20000).step(1);
@@ -90,6 +112,12 @@ var minIndex = gui.add(metadata, 'min_index', 0, 20000).step(1);
 var maxIndex = gui.add(metadata, 'max_index', 0, 20000).step(1);
 var cameraSelector = gui.add(metadata, 'camera', ['orthographic', 'perspective']);
 var cameraReseter = gui.add(gui_controls, 'reset');
+var colorsFolder = gui.addFolder('Colors');
+var color_background = colorsFolder.addColor(gui_colors, 'background').listen();
+var color_active_pixel = colorsFolder.addColor(gui_colors, 'active_pixel').listen();
+var color_inactive_pixel = colorsFolder.addColor(gui_colors, 'inactive_pixel').listen();
+var isNight = colorsFolder.add(gui_colors, '_night').listen();
+var colorReseter = colorsFolder.add(gui_colors, '_reset');
 hitIndex.onChange(function(newIndex) {
   clearObjects(hitMeshes);
   loadHits(metadata);
@@ -106,6 +134,25 @@ maxIndex.onChange(function(newMax) {
 });
 cameraSelector.onChange(function(newCamera) {
   camera = cameras[newCamera];
+});
+color_background.onChange(function(newColor) {
+  scene.background = new THREE.Color(newColor);
+});
+color_active_pixel.onChange(function(newColor) {
+  activePixelPadMaterial.color = new THREE.Color(newColor);
+});
+color_inactive_pixel.onChange(function(newColor) {
+  inactivePixelPadMaterial.color = new THREE.Color(newColor);
+});
+isNight.onChange(function(night) {
+  if(night) {
+    newColor = '#272727'
+  }
+  else {
+    newColor = '#a7a7a7'
+  }
+  gui_colors.background = newColor;
+  gui_colors['_background_color'](newColor);
 });
 
 function clearObjects(objectsToClear) {

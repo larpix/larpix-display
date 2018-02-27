@@ -69,13 +69,55 @@ $.getJSON('data_2018_02_13_16_12_21_PST_.h5.json', function(data) {
   gui.__controllers[3].__max = data.length;
 });
 
+/**
+ * Find the next group of data points (after index <start>) with <n>
+ * hits within time window <dt>.
+ */
+var nextGroup = function(data, start, n, dt) {
+  index = start;
+  time = 8;
+  t0 = data[index][time];
+  maxIndex = data.length - n;
+  groupSize = 1;
+  while(groupSize < n && index < maxIndex) {
+    nextEvent = data[index + groupSize];
+    if(Math.abs(nextEvent[time] - t0) < dt) {
+      // Then look for more events all within dt
+      groupSize++;
+    }
+    else {
+      // Then pick the next t0 and start again
+      index++;
+      groupSize = 1;
+      t0 = data[index][time];
+    }
+  }
+  return index;
+};
+
 var gui = new dat.GUI();
 var metadata = {
   'index': 0,
   'min_index': 0,
   'max_index': 1000,
   'nhits': 10,
+  'cluster_size': 10,
+  'dt': 100,
   'data': [[]],
+  'next': function() {
+    data = metadata.data;
+    index = metadata.index + metadata.cluster_size;
+    nhits = metadata.cluster_size;
+    dt = metadata.dt * 1000;
+    next_index = nextGroup(data, index, nhits, dt);
+    metadata.max_index = next_index + 3*metadata.nhits;
+    gui.__controllers[0].__max = metadata.max_index;
+    metadata.min_index = next_index - 3*metadata.nhits;
+    gui.__controllers[0].__min = metadata.min_index;
+    metadata.index = next_index;
+    clearObjects(hitMeshes);
+    loadHits(metadata);
+  },
   'camera': 'orthographic'
 };
 var gui_controls = {
@@ -106,10 +148,13 @@ for(key in gui_colors) {
   gui_colors._backup['_' + key] = gui_colors[key];
 }
 var hitMeshes = [];
-var hitIndex = gui.add(metadata, 'index', 0, 20000).step(1);
-var nHits = gui.add(metadata, 'nhits').step(1);
-var minIndex = gui.add(metadata, 'min_index', 0, 20000).step(1);
-var maxIndex = gui.add(metadata, 'max_index', 0, 20000).step(1);
+var hitIndex = gui.add(metadata, 'index', 0, 20000).step(1).listen();
+var nHits = gui.add(metadata, 'nhits', 0).step(1);
+var clusterSize = gui.add(metadata, 'cluster_size', 0).step(1);
+var dt = gui.add(metadata, 'dt').step(1);
+var next = gui.add(metadata, 'next');
+var minIndex = gui.add(metadata, 'min_index', 0, 20000).step(1).listen();
+var maxIndex = gui.add(metadata, 'max_index', 0, 20000).step(1).listen();
 var cameraSelector = gui.add(metadata, 'camera', ['orthographic', 'perspective']);
 var cameraReseter = gui.add(gui_controls, 'reset');
 var colorsFolder = gui.addFolder('Colors');

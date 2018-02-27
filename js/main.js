@@ -288,12 +288,15 @@ function loadHits(gui_metadata) {
   nhits = gui_metadata['nhits'];
   color_values = [];
   times = [];
-  for(var i = 0; i < nhits && i + index < data.length; i++) {
-    hit = data[index + i];
+  // Sort hits
+  hits = data.slice(index, index + nhits);
+  hits.sort(function(a, b) { return a[8] - b[8]; });
+  for(var i = 0; i < hits.length; i++) {
+    hit = hits[i];
     x = hit[3]/10.0;
     y = hit[4]/10.0;
     color_value = hit[10] - hit[11];
-    time = hit[8] - data[index][8];
+    time = hit[8] - hits[0][8];
     z = time/1000;
     hitMaterial = new THREE.MeshBasicMaterial({color: adcScale(color_value).hex()});
     hitGeometry = new THREE.CylinderGeometry(1, 1, 1);

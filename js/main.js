@@ -61,7 +61,7 @@ $.get('sensor_plane_28_simple.txt', function(rawPixelGeometry) {
 }, 'text');
 
 
-$.getJSON('test.json', function(data) {
+$.getJSON('data_2018_02_13_16_12_21_PST_.h5.json', function(data) {
   metadata['data'] = data;
   loadHits(metadata);
   gui.__controllers[0].__max = data.length;

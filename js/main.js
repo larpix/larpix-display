@@ -5,10 +5,6 @@ var spriteCamera = orthographicCamera.clone();
 var spriteScene = new THREE.Scene();
 var camera = orthographicCamera;
 var cameras = {'orthographic': orthographicCamera, 'perspective': perspectiveCamera};
-perspectiveCamera.position.z = 80;
-orthographicCamera.position.z = 80;
-orthographicCamera.zoom = 5;
-orthographicCamera.updateProjectionMatrix();
 spriteCamera.position.z = 80;
 spriteCamera.zoom = 6;
 spriteCamera.updateProjectionMatrix();
@@ -24,6 +20,7 @@ var reset_camera = function(cams) {
   persp.rotation.set(0, 0, 0);
   persp.updateProjectionMatrix();
 };
+reset_camera(cameras);
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);

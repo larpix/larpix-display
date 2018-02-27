@@ -222,7 +222,7 @@ function loadColorMap(scale, position) {
       colors[0],
       '80px'
   );
-  mesh = placeText('ADCs',
+  mesh = placeText('mV',
       [position[0] - 3, position[1] + nSwatches*height + 5, position[2]],
       colors[Math.floor(nSwatches/2)],
       colors[Math.floor(nSwatches/2)],
@@ -235,22 +235,22 @@ var adcScale = chroma.cubehelix()
   .start(300)
   .hue(2)
   .gamma(1)
-  .rotations(-1).scale().domain([30, 64]);
+  .rotations(-1).scale().domain([0, 100]);
 loadColorMap(adcScale, [60, 0, 0]);
 function loadHits(gui_metadata) {
   data = gui_metadata['data'];
   index = gui_metadata['index'];
   nhits = gui_metadata['nhits'];
-  adcs = [];
+  color_values = [];
   times = [];
   for(var i = 0; i < nhits && i + index < data.length; i++) {
     hit = data[index + i];
     x = hit[3]/10.0;
     y = hit[4]/10.0;
-    adc = hit[7];
+    color_value = hit[10] - hit[11];
     time = hit[8] - data[index][8];
     z = time/1000;
-    hitMaterial = new THREE.MeshBasicMaterial({color: adcScale(adc).hex()});
+    hitMaterial = new THREE.MeshBasicMaterial({color: adcScale(color_value).hex()});
     hitGeometry = new THREE.CylinderGeometry(1, 1, 1);
     hitMesh = new THREE.Mesh(hitGeometry, hitMaterial);
     hitMesh.position.z = z;
@@ -259,10 +259,10 @@ function loadHits(gui_metadata) {
     hitMesh.rotation.x = 3.14159/2;
     scene.add(hitMesh);
     hitMeshes.push(hitMesh);
-    adcs.push(adc);
+    color_values.push(color_value);
     times.push(time);
   }
-  console.log(adcs);
+  console.log(color_values);
   console.log(times);
 };
 

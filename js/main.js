@@ -5,13 +5,22 @@ var spriteCamera = orthographicCamera.clone();
 var spriteScene = new THREE.Scene();
 var camera = orthographicCamera;
 var cameras = {'orthographic': orthographicCamera, 'perspective': perspectiveCamera};
-perspectiveCamera.position.z = 80;
-orthographicCamera.position.z = 80;
-orthographicCamera.zoom = 5;
-orthographicCamera.updateProjectionMatrix();
 spriteCamera.position.z = 80;
 spriteCamera.zoom = 6;
 spriteCamera.updateProjectionMatrix();
+var reset_camera = function(cams) {
+  ortho = cams['orthographic'];
+  ortho.position.set(0, 0, 80);
+  ortho.zoom = 5;
+  ortho.rotation.set(0, 0, 0);
+  ortho.updateProjectionMatrix();
+  persp = cams['perspective'];
+  persp.position.set(0, 0, 80);
+  persp.zoom = 1;
+  persp.rotation.set(0, 0, 0);
+  persp.updateProjectionMatrix();
+};
+reset_camera(cameras);
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -69,12 +78,18 @@ var metadata = {
   'data': [[]],
   'camera': 'orthographic'
 };
+var gui_controls = {
+  'reset': function() {
+    reset_camera(cameras);
+  }
+}
 var hitMeshes = [];
 var hitIndex = gui.add(metadata, 'index', 0, 20000).step(1);
 var nHits = gui.add(metadata, 'nhits', 0, 1000).step(1);
 var minIndex = gui.add(metadata, 'min_index', 0, 20000).step(1);
 var maxIndex = gui.add(metadata, 'max_index', 0, 20000).step(1);
 var cameraSelector = gui.add(metadata, 'camera', ['orthographic', 'perspective']);
+var cameraReseter = gui.add(gui_controls, 'reset');
 hitIndex.onChange(function(newIndex) {
   clearObjects(hitMeshes);
   loadHits(metadata);

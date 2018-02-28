@@ -27,7 +27,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 renderer.autoClear = false;
 
-var pixelPadGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.1);
+var pixelPadGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.1);
 var activePixelPadMaterial = new THREE.MeshBasicMaterial({color:0x00ff00});
 var inactivePixelPadMaterial = new THREE.MeshBasicMaterial({color:0x005500});
 

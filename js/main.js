@@ -60,14 +60,10 @@ $.get('sensor_plane_28_simple.txt', function(rawPixelGeometry) {
   }
 }, 'text');
 
+var getFileList = function(callback) {
+  $.getJSON('data/fileList.json', callback);
+};
 
-$.getJSON('data_2018_02_13_16_12_21_PST_.h5.json', function(data) {
-  metadata['data'] = data;
-  loadHits(metadata);
-  gui.__controllers[0].__max = data.length;
-  gui.__controllers[2].__max = data.length;
-  gui.__controllers[3].__max = data.length;
-});
 
 /**
  * Find the next group of data points (after index <start>) with <n>
@@ -167,6 +163,24 @@ var color_active_pixel = colorsFolder.addColor(gui_colors, 'active_pixel').liste
 var color_inactive_pixel = colorsFolder.addColor(gui_colors, 'inactive_pixel').listen();
 var isNight = colorsFolder.add(gui_colors, '_night').listen();
 var colorReseter = colorsFolder.add(gui_colors, '_reset');
+getFileList(function(list) {
+  metadata['files'] = [''].concat(list);
+  metadata['file'] = '';
+  var currentFile = gui.add(metadata, 'file', metadata['files']);
+  currentFile.onChange(function(newFile) {
+    if(newFile.length === 0) {
+      metadata['data'] = [[]];
+      clearObjects(hitMeshes);
+    }
+    $.getJSON('data/' + newFile, function(data) {
+      metadata['data'] = data;
+      loadHits(metadata);
+      gui.__controllers[0].__max = data.length;
+      gui.__controllers[2].__max = data.length;
+      gui.__controllers[3].__max = data.length;
+    });
+  });
+});
 hitIndex.onChange(function(newIndex) {
   clearObjects(hitMeshes);
   loadHits(metadata);

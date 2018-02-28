@@ -109,12 +109,16 @@ var metadata = {
     index = metadata.index + metadata.cluster_size;
     nhits = metadata.cluster_size;
     dt = metadata.dt * 1000;
+    indexController = gui.__controllers[0];
     next_index = nextGroup(data, index, nhits, dt);
     metadata.max_index = next_index + 3*metadata.nhits;
-    gui.__controllers[0].__max = metadata.max_index;
+    indexController.__max = metadata.max_index;
     metadata.min_index = next_index - 3*metadata.nhits;
-    gui.__controllers[0].__min = metadata.min_index;
+    indexController.__min = metadata.min_index;
     metadata.index = next_index;
+    for(var i in gui.__controllers) {
+      gui.__controllers[i].updateDisplay();
+    }
     clearObjects(hitMeshes);
     loadHits(metadata);
   },
@@ -148,13 +152,13 @@ for(key in gui_colors) {
   gui_colors._backup['_' + key] = gui_colors[key];
 }
 var hitMeshes = [];
-var hitIndex = gui.add(metadata, 'index', 0, 20000).step(1).listen();
+var hitIndex = gui.add(metadata, 'index', 0, 20000).step(1);
 var nHits = gui.add(metadata, 'nhits', 0).step(1);
 var clusterSize = gui.add(metadata, 'cluster_size', 0).step(1);
 var dt = gui.add(metadata, 'dt').step(1);
 var next = gui.add(metadata, 'next');
-var minIndex = gui.add(metadata, 'min_index', 0, 20000).step(1).listen();
-var maxIndex = gui.add(metadata, 'max_index', 0, 20000).step(1).listen();
+var minIndex = gui.add(metadata, 'min_index', 0, 20000).step(1);
+var maxIndex = gui.add(metadata, 'max_index', 0, 20000).step(1);
 var cameraSelector = gui.add(metadata, 'camera', ['orthographic', 'perspective']);
 var cameraReseter = gui.add(gui_controls, 'reset');
 var colorsFolder = gui.addFolder('Colors');

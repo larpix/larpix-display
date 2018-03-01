@@ -333,6 +333,21 @@ function loadHits(gui_metadata) {
   console.log(times);
 };
 
+window.addEventListener('resize', onWindowResize, false);
+function onWindowResize() {
+  width = window.innerWidth;
+  height = window.innerHeight;
+  cameras['perspective'].aspect = width/height;
+  ortho = cameras['orthographic'];
+  ortho.left = -width/2;
+  ortho.right = width/2;
+  ortho.top = height/2;
+  ortho.bottom = -height/2;
+  cameras['perspective'].updateProjectionMatrix();
+  ortho.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+};
+
 function animate() {
   requestAnimationFrame(animate);
   renderer.clear();

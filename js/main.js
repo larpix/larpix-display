@@ -343,8 +343,13 @@ function onWindowResize() {
   ortho.right = width/2;
   ortho.top = height/2;
   ortho.bottom = -height/2;
+  spriteCamera.left = -width/2;
+  spriteCamera.right = width/2;
+  spriteCamera.top = height/2;
+  spriteCamera.bottom = -height/2;
   cameras['perspective'].updateProjectionMatrix();
   ortho.updateProjectionMatrix();
+  spriteCamera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 };
 

@@ -174,6 +174,7 @@ getFileList(function(list) {
     }
     $.getJSON('data/' + newFile, function(data) {
       metadata['data'] = data;
+      clearObjects(hitMeshes);
       loadHits(metadata);
       gui.__controllers[0].__max = data.length;
       gui.__controllers[2].__max = data.length;

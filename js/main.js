@@ -300,7 +300,7 @@ var adcScale = chroma.cubehelix()
   .hue(2)
   .gamma(1)
   .rotations(-1).scale().domain([0, 100]);
-loadColorMap(adcScale, [60, 0, 0]);
+loadColorMap(adcScale, [-80, -40, 0]);
 function loadHits(gui_metadata) {
   data = gui_metadata['data'];
   index = gui_metadata['index'];

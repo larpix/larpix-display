@@ -1,6 +1,6 @@
 var scene = new THREE.Scene();
 var perspectiveCamera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-var orthographicCamera = new THREE.OrthographicCamera(-window.innerWidth/2, window.innerWidth/2, window.innerHeight/2, -window.innerHeight/2, 0.1, 1000);
+var orthographicCamera = new THREE.OrthographicCamera(-window.innerWidth/2, window.innerWidth/2, window.innerHeight/2, -window.innerHeight/2, 0.1, 5000);
 var spriteCamera = orthographicCamera.clone();
 var spriteScene = new THREE.Scene();
 var camera = orthographicCamera;
@@ -37,11 +37,14 @@ orthographicControls = new THREE.OrbitControls(orthographicCamera, renderer.domE
 
 var pixelOffset = {'x': -100, 'y': -100};
 
-$.get('sensor_plane_28_simple.txt', function(rawPixelGeometry) {
+$.get('sensor_plane_28_full.txt', function(rawPixelGeometry) {
   pixelGeometry = jsyaml.load(rawPixelGeometry);
   pixels = pixelGeometry['pixels'];
   chips = pixelGeometry['chips'];
-  activePixels = [].concat(chips[0][1], chips[1][1], chips[2][1], chips[3][1]);
+  activePixels = []
+  for(var i in chips) {
+    activePixels = activePixels.concat(chips[i][1]);
+  }
   for(var i = 0; i < pixels.length; i++) {
     pixel = pixels[i];
     x = pixel[1]+pixelOffset.x;
@@ -61,7 +64,7 @@ $.get('sensor_plane_28_simple.txt', function(rawPixelGeometry) {
 }, 'text');
 
 
-$.getJSON('data_2018_02_13_16_12_21_PST_.h5.json', function(data) {
+$.getJSON('bern-1.json', function(data) {
   metadata['data'] = data;
   loadHits(metadata);
   gui.__controllers[0].__max = data.length;
@@ -152,13 +155,13 @@ for(key in gui_colors) {
   gui_colors._backup['_' + key] = gui_colors[key];
 }
 var hitMeshes = [];
-var hitIndex = gui.add(metadata, 'index', 0, 20000).step(1);
+var hitIndex = gui.add(metadata, 'index', 0, 1000000).step(1);
 var nHits = gui.add(metadata, 'nhits', 0).step(1);
 var clusterSize = gui.add(metadata, 'cluster_size', 0).step(1);
 var dt = gui.add(metadata, 'dt').step(1);
 var next = gui.add(metadata, 'next');
-var minIndex = gui.add(metadata, 'min_index', 0, 20000).step(1);
-var maxIndex = gui.add(metadata, 'max_index', 0, 20000).step(1);
+var minIndex = gui.add(metadata, 'min_index', 0, 1000000).step(1);
+var maxIndex = gui.add(metadata, 'max_index', 0, 1000000).step(1);
 var cameraSelector = gui.add(metadata, 'camera', ['orthographic', 'perspective']);
 var cameraReseter = gui.add(gui_controls, 'reset');
 var colorsFolder = gui.addFolder('Colors');

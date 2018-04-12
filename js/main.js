@@ -37,30 +37,45 @@ orthographicControls = new THREE.OrbitControls(orthographicCamera, renderer.domE
 
 var pixelOffset = {'x': -100, 'y': -100};
 
-$.get('sensor_plane_28_simple.txt', function(rawPixelGeometry) {
-  pixelGeometry = jsyaml.load(rawPixelGeometry);
-  pixels = pixelGeometry['pixels'];
-  chips = pixelGeometry['chips'];
-  activePixels = [].concat(chips[0][1], chips[1][1], chips[2][1], chips[3][1]);
-  for(var i = 0; i < pixels.length; i++) {
-    pixel = pixels[i];
-    x = pixel[1]+pixelOffset.x;
-    y = pixel[2]+pixelOffset.y;
-    if(activePixels.indexOf(pixel[0]) >= 0) {
-      pixelMesh = new THREE.Mesh(pixelPadGeometry, activePixelPadMaterial);
-    }
-    else {
-      pixelMesh = new THREE.Mesh(pixelPadGeometry, inactivePixelPadMaterial);
-    }
-    pixelMesh.position.z = 0;
-    pixelMesh.position.x = x;
-    pixelMesh.position.y = y;
-    pixelMesh.rotation.x = 3.14159/2;
-    scene.add(pixelMesh);
+var pixelMeshes = [];
+
+var loadChipLayout = function(file) {
+  console.log('in loadChipLayout');
+  for(var i in pixelMeshes) {
+    scene.remove(pixelMeshes[i]);
   }
-}, 'text');
+  $.get(file, function(rawPixelGeometry) {
+    console.log('got chip geometry file');
+    pixelGeometry = jsyaml.load(rawPixelGeometry);
+    console.log('loaded chip geometry');
+    pixels = pixelGeometry['pixels'];
+    chips = pixelGeometry['chips'];
+    activePixels = [];
+    for(var i in chips) {
+      activePixels = activePixels.concat(chips[i][1]);
+    }
+    for(var i = 0; i < pixels.length; i++) {
+      pixel = pixels[i];
+      x = pixel[1]+pixelOffset.x;
+      y = pixel[2]+pixelOffset.y;
+      if(activePixels.indexOf(pixel[0]) >= 0) {
+        pixelMesh = new THREE.Mesh(pixelPadGeometry, activePixelPadMaterial);
+      }
+      else {
+        pixelMesh = new THREE.Mesh(pixelPadGeometry, inactivePixelPadMaterial);
+      }
+      pixelMesh.position.z = 0;
+      pixelMesh.position.x = x;
+      pixelMesh.position.y = y;
+      pixelMesh.rotation.x = 3.14159/2;
+      scene.add(pixelMesh);
+      pixelMeshes.push(pixelMesh);
+    }
+  }, 'text');
+};
 
 var getFileList = function(callback) {
+  console.log('getting file list');
   $.getJSON('data/fileList.json', callback);
 };
 
@@ -163,15 +178,32 @@ var color_active_pixel = colorsFolder.addColor(gui_colors, 'active_pixel').liste
 var color_inactive_pixel = colorsFolder.addColor(gui_colors, 'inactive_pixel').listen();
 var isNight = colorsFolder.add(gui_colors, '_night').listen();
 var colorReseter = colorsFolder.add(gui_colors, '_reset');
+console.log('about to get file list');
 getFileList(function(list) {
-  metadata['files'] = [''].concat(list);
+  console.log('got file list');
+  console.log(list);
+  metadata['files'] = [''];
+  metadata['geometries'] = [''];
   metadata['file'] = '';
+  metadata['geometry'] = '';
+  for(var i in list) {
+    file = list[i];
+    metadata['files'].push(file['name']);
+    metadata['geometries'].push(file['geometry']);
+  }
   var currentFile = gui.add(metadata, 'file', metadata['files']);
   currentFile.onChange(function(newFile) {
     if(newFile.length === 0) {
       metadata['data'] = [[]];
       clearObjects(hitMeshes);
     }
+    // find the geometry corresponding to this file
+    for(var i in metadata['files']) {
+      if(metadata['files'][i] === newFile) {
+        metadata['geometry'] = metadata['geometries'][i];
+      }
+    }
+    loadChipLayout(metadata['geometry']);
     $.getJSON('data/' + newFile, function(data) {
       metadata['data'] = data;
       clearObjects(hitMeshes);

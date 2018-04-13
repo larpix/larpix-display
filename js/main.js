@@ -396,11 +396,43 @@ function loadHits(gui_metadata) {
   console.log(times);
 };
 
+function allVisible(meshes) {
+  // Set up frustum
+  camera.updateMatrix();
+  camera.updateMatrixWorld();
+  camera.matrixWorldInverse.getInverse(camera.matrixWorld);
+  var frustum = new THREE.Frustum();
+  frustum.setFromMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+  soFarVisible = true;
+  var i = 0;
+  while(soFarVisible && i < meshes.length) {
+    soFarVisible = frustum.containsPoint(meshes[i].position);
+    i++;
+  }
+  return soFarVisible;
+};
+
+warnMaterial = new THREE.SpriteMaterial({color: 0xff0000});
+warnSprite = new THREE.Sprite(warnMaterial);
+warnSprite.position.set(60, -40, 0)
+warnSprite.scale.set(5, 5, 1);
+warnSprite.transparent = false;
+function notifyIfHidden() {
+  if(allVisible(hitMeshes)) {
+    spriteScene.remove(warnSprite);
+  }
+  else {
+    spriteScene.add(warnSprite);
+  }
+};
+
+
 function animate() {
   requestAnimationFrame(animate);
   renderer.clear();
   renderer.render(scene, camera);
   renderer.clearDepth();
+  notifyIfHidden();
   renderer.render(spriteScene, spriteCamera);
 };
 animate();

@@ -64,7 +64,7 @@ $.get('sensor_plane_28_full.txt', function(rawPixelGeometry) {
 }, 'text');
 
 
-$.getJSON('bern-1.json', function(data) {
+$.getJSON('bern-2.json', function(data) {
   metadata['data'] = data;
   loadHits(metadata);
   gui.__controllers[0].__max = data.length;

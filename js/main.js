@@ -116,7 +116,7 @@ var metadata = {
   'cluster_size': 10,
   'dt': 100,
   'data': [[]],
-  'next': function() {
+  'next_nhits': function() {
     data = metadata.data;
     index = metadata.index + metadata.cluster_size;
     nhits = metadata.cluster_size;

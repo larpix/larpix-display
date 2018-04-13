@@ -98,6 +98,15 @@ var nextGroup = function(data, start, n, dt) {
   return index;
 };
 
+var nextGroupHelp = function() {
+  helpText = 'Display the next cluster of hits all within a given time window.';
+  helpText += '\n\n';
+  helpText += '- dt is the time window in microseconds\n';
+  helpText += '- cluster_size is the number of hits required within dt\n';
+  helpText += '- nhits is the number of hits to display\n';
+  alert(helpText);
+};
+
 var gui = new dat.GUI();
 var metadata = {
   'index': 0,
@@ -125,7 +134,8 @@ var metadata = {
     clearObjects(hitMeshes);
     loadHits(metadata);
   },
-  'camera': 'orthographic'
+  'camera': 'orthographic',
+  'next_nhits_help': nextGroupHelp,
 };
 var gui_controls = {
   'reset': function() {
@@ -159,7 +169,7 @@ var hitIndex = gui.add(metadata, 'index', 0, 1000000).step(1);
 var nHits = gui.add(metadata, 'nhits', 0).step(1);
 var clusterSize = gui.add(metadata, 'cluster_size', 0).step(1);
 var dt = gui.add(metadata, 'dt').step(1);
-var next = gui.add(metadata, 'next');
+var nextNhits = gui.add(metadata, 'next_nhits');
 var minIndex = gui.add(metadata, 'min_index', 0, 1000000).step(1);
 var maxIndex = gui.add(metadata, 'max_index', 0, 1000000).step(1);
 var cameraSelector = gui.add(metadata, 'camera', ['orthographic', 'perspective']);
@@ -170,6 +180,7 @@ var color_active_pixel = colorsFolder.addColor(gui_colors, 'active_pixel').liste
 var color_inactive_pixel = colorsFolder.addColor(gui_colors, 'inactive_pixel').listen();
 var isNight = colorsFolder.add(gui_colors, '_night').listen();
 var colorReseter = colorsFolder.add(gui_colors, '_reset');
+var nextNhitsHelp = gui.add(metadata, 'next_nhits_help');
 hitIndex.onChange(function(newIndex) {
   clearObjects(hitMeshes);
   loadHits(metadata);

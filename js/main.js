@@ -107,6 +107,41 @@ var nextGroupHelp = function() {
   alert(helpText);
 };
 
+/**
+ * Find all of the hits between the next time gap of <dt> and the time gap
+ * after that.
+ */
+var nextGapGroup = function(data, start, dt) {
+  time = 8;
+  /*
+   * Return the last index before a big gap of dt
+   */
+  var findNextGap = function(data, sub_start, dt) {
+    sub_index = sub_start
+    // Find the next gap
+    t0 = data[sub_index][time];
+    t1 = data[sub_index+1][time];
+    while(t1 - t0 < dt && sub_index < data.length-1) {
+      sub_index++;
+      t0 = t1;
+      t1 = data[sub_index+1][time];
+    }
+    return sub_index;
+  }
+  first_good_hit = findNextGap(data, start, dt) + 1;
+  last_good_hit = findNextGap(data, first_good_hit, dt);
+  return [first_good_hit, last_good_hit];
+};
+
+var nextGapGroupHelp = function() {
+  helpText = 'Display the next hit group with large empty gaps before and after.';
+  helpText += '\n\n';
+  helpText += '- dt is the time separation before or after the hit group\n';
+  helpText += '- cluster_size is the minimum number of hits in the group\n';
+  helpText += '- nhits will display the number of hits in the group\n';
+  alert(helpText);
+};
+
 var gui = new dat.GUI();
 var metadata = {
   'index': 0,
@@ -134,8 +169,35 @@ var metadata = {
     clearObjects(hitMeshes);
     loadHits(metadata);
   },
+  'next_gap': function() {
+    data = metadata.data;
+    index = metadata.index;
+    dt = metadata.dt * 1000;
+    indexController = gui.__controllers[0];
+    good_range = [];
+    nhits = 0;
+    while(nhits < metadata.cluster_size) {
+      good_range = nextGapGroup(data, index, dt);
+      nhits = good_range[1] - good_range[0];
+      index = good_range[0];
+      console.log(good_range);
+    }
+    metadata.nhits = nhits;
+    metadata.max_index = good_range[1] + 2*nhits;
+    metadata.min_index = good_range[0] - 2*nhits;
+    indexController.__max = metadata.max_index;
+    indexController.__min = metadata.min_index;
+    metadata.index = good_range[0];
+    for(var i in gui.__controllers) {
+      gui.__controllers[i].updateDisplay();
+    }
+    clearObjects(hitMeshes);
+    loadHits(metadata);
+  },
   'camera': 'orthographic',
   'next_nhits_help': nextGroupHelp,
+  'next_gap_help': nextGapGroupHelp,
+
 };
 var gui_controls = {
   'reset': function() {
@@ -170,6 +232,7 @@ var nHits = gui.add(metadata, 'nhits', 0).step(1);
 var clusterSize = gui.add(metadata, 'cluster_size', 0).step(1);
 var dt = gui.add(metadata, 'dt').step(1);
 var nextNhits = gui.add(metadata, 'next_nhits');
+var nextGap = gui.add(metadata, 'next_gap');
 var minIndex = gui.add(metadata, 'min_index', 0, 1000000).step(1);
 var maxIndex = gui.add(metadata, 'max_index', 0, 1000000).step(1);
 var cameraSelector = gui.add(metadata, 'camera', ['orthographic', 'perspective']);
@@ -181,6 +244,7 @@ var color_inactive_pixel = colorsFolder.addColor(gui_colors, 'inactive_pixel').l
 var isNight = colorsFolder.add(gui_colors, '_night').listen();
 var colorReseter = colorsFolder.add(gui_colors, '_reset');
 var nextNhitsHelp = gui.add(metadata, 'next_nhits_help');
+var nextGapHelp = gui.add(metadata, 'next_gap_help');
 hitIndex.onChange(function(newIndex) {
   clearObjects(hitMeshes);
   loadHits(metadata);

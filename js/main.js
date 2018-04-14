@@ -378,8 +378,7 @@ loadColorMap(adcScale, [60, 0, 0]);
 rulerMaterial = new THREE.MeshBasicMaterial({color: 0xfeb24c});
 rulerGeometry = new THREE.BoxGeometry(0.5, 0.5, 10);
 rulerMesh = new THREE.Mesh(rulerGeometry, rulerMaterial);
-rulerMesh.position.set(50, 0, 0)
-//rulerMesh.scale.set(2, 2, 10);
+rulerMesh.position.set(50, 0, 5)
 scene.add(rulerMesh);
 function loadHits(gui_metadata) {
   data = gui_metadata['data'];
@@ -387,6 +386,7 @@ function loadHits(gui_metadata) {
   nhits = gui_metadata['nhits'];
   zDivisor = gui_metadata['zscale'];
   rulerMesh.scale.z = 1000/zDivisor;
+  rulerMesh.position.set(50, 0, 10*rulerMesh.scale.z/2);
   color_values = [];
   times = [];
   // Sort hits

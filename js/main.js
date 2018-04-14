@@ -22,9 +22,12 @@ var reset_camera = function(cams) {
 };
 reset_camera(cameras);
 
-var light = new THREE.DirectionalLight(0xffffff);
-light.position.set(0, 50, 100);
-scene.add(light);
+var frontLight = new THREE.DirectionalLight(0xffffff);
+frontLight.position.set(0, 50, 100);
+scene.add(frontLight);
+var backLight = new THREE.DirectionalLight(0xffffff);
+backLight.position.set(0, 50, -100);
+scene.add(backLight);
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -200,6 +203,7 @@ var metadata = {
     loadHits(metadata);
   },
   'camera': 'orthographic',
+  'shading': true,
   'next_nhits_help': nextGroupHelp,
   'next_gap_help': nextGapGroupHelp,
 
@@ -243,6 +247,7 @@ var minIndex = gui.add(metadata, 'min_index', 0, 1000000).step(1);
 var maxIndex = gui.add(metadata, 'max_index', 0, 1000000).step(1);
 var cameraSelector = gui.add(metadata, 'camera', ['orthographic', 'perspective']);
 var cameraReseter = gui.add(gui_controls, 'reset');
+var useLambertMaterial = gui.add(metadata, 'shading');
 var colorsFolder = gui.addFolder('Colors');
 var color_background = colorsFolder.addColor(gui_colors, 'background').listen();
 var color_active_pixel = colorsFolder.addColor(gui_colors, 'active_pixel').listen();
@@ -271,6 +276,10 @@ maxIndex.onChange(function(newMax) {
 });
 cameraSelector.onChange(function(newCamera) {
   camera = cameras[newCamera];
+});
+useLambertMaterial.onChange(function(newUseLambertMaterial) {
+  clearObjects(hitMeshes);
+  loadHits(metadata);
 });
 color_background.onChange(function(newColor) {
   scene.background = new THREE.Color(newColor);
@@ -385,8 +394,17 @@ function loadHits(gui_metadata) {
   index = gui_metadata['index'];
   nhits = gui_metadata['nhits'];
   zDivisor = gui_metadata['zscale'];
+  useLambert = gui_metadata['shading'];
   rulerMesh.scale.z = 1000/zDivisor;
   rulerMesh.position.set(50, 0, 10*rulerMesh.scale.z/2);
+  var MeshMaterial = null;
+  if(useLambert) {
+    MeshMaterial = THREE.MeshLambertMaterial;
+  }
+  else {
+    MeshMaterial = THREE.MeshBasicMaterial;
+  }
+
   color_values = [];
   times = [];
   // Sort hits
@@ -399,7 +417,7 @@ function loadHits(gui_metadata) {
     color_value = hit[10] - hit[11];
     time = hit[8] - hits[0][8];
     z = time/zDivisor;
-    hitMaterial = new THREE.MeshBasicMaterial({color: adcScale(color_value).hex()});
+    hitMaterial = new MeshMaterial({color: adcScale(color_value).hex()});
     hitGeometry = new THREE.CylinderGeometry(1, 1, 1);
     hitMesh = new THREE.Mesh(hitGeometry, hitMaterial);
     hitMesh.position.z = z;

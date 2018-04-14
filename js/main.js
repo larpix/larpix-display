@@ -150,6 +150,7 @@ var metadata = {
   'nhits': 10,
   'cluster_size': 10,
   'dt': 100,
+  'zscale': 1000,
   'data': [[]],
   'next_nhits': function() {
     data = metadata.data;
@@ -231,6 +232,7 @@ var hitIndex = gui.add(metadata, 'index', 0, 1000000).step(1);
 var nHits = gui.add(metadata, 'nhits', 0).step(1);
 var clusterSize = gui.add(metadata, 'cluster_size', 0).step(1);
 var dt = gui.add(metadata, 'dt').step(1);
+var zScale = gui.add(metadata, 'zscale', 100, 5000).step(50);
 var nextNhits = gui.add(metadata, 'next_nhits');
 var nextGap = gui.add(metadata, 'next_gap');
 var minIndex = gui.add(metadata, 'min_index', 0, 1000000).step(1);
@@ -250,6 +252,10 @@ hitIndex.onChange(function(newIndex) {
   loadHits(metadata);
 });
 nHits.onChange(function(newNHits) {
+  clearObjects(hitMeshes);
+  loadHits(metadata);
+});
+zScale.onChange(function(newZScale) {
   clearObjects(hitMeshes);
   loadHits(metadata);
 });
@@ -368,6 +374,7 @@ function loadHits(gui_metadata) {
   data = gui_metadata['data'];
   index = gui_metadata['index'];
   nhits = gui_metadata['nhits'];
+  zDivisor = gui_metadata['zscale'];
   color_values = [];
   times = [];
   // Sort hits
@@ -379,7 +386,7 @@ function loadHits(gui_metadata) {
     y = hit[4]/10.0;
     color_value = hit[10] - hit[11];
     time = hit[8] - hits[0][8];
-    z = time/1000;
+    z = time/zDivisor;
     hitMaterial = new THREE.MeshBasicMaterial({color: adcScale(color_value).hex()});
     hitGeometry = new THREE.CylinderGeometry(1, 1, 1);
     hitMesh = new THREE.Mesh(hitGeometry, hitMaterial);
@@ -392,7 +399,7 @@ function loadHits(gui_metadata) {
     color_values.push(color_value);
     times.push(time);
   }
-  console.log(color_values);
+  //console.log(color_values);
   console.log(times);
 };
 

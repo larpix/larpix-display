@@ -22,6 +22,10 @@ var reset_camera = function(cams) {
 };
 reset_camera(cameras);
 
+var light = new THREE.DirectionalLight(0xffffff);
+light.position.set(0, 50, 100);
+scene.add(light);
+
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -370,11 +374,19 @@ var adcScale = chroma.cubehelix()
   .gamma(1)
   .rotations(-1).scale().domain([0, 100]);
 loadColorMap(adcScale, [60, 0, 0]);
+// Set up the ruler
+rulerMaterial = new THREE.MeshBasicMaterial({color: 0xfeb24c});
+rulerGeometry = new THREE.BoxGeometry(0.5, 0.5, 10);
+rulerMesh = new THREE.Mesh(rulerGeometry, rulerMaterial);
+rulerMesh.position.set(50, 0, 0)
+//rulerMesh.scale.set(2, 2, 10);
+scene.add(rulerMesh);
 function loadHits(gui_metadata) {
   data = gui_metadata['data'];
   index = gui_metadata['index'];
   nhits = gui_metadata['nhits'];
   zDivisor = gui_metadata['zscale'];
+  rulerMesh.scale.z = 1000/zDivisor;
   color_values = [];
   times = [];
   // Sort hits

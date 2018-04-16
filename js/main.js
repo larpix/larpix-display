@@ -172,7 +172,8 @@ var metadata = {
     indexController.__min = metadata.min_index;
     metadata.index = next_index;
     for(var i in gui.__controllers) {
-      gui.__controllers[i].updateDisplay();
+      controller = gui.__controllers[i];
+      controller.setValue(controller.getValue());
     }
     clearObjects(hitMeshes);
     loadHits(metadata);
@@ -197,7 +198,8 @@ var metadata = {
     indexController.__min = metadata.min_index;
     metadata.index = good_range[0];
     for(var i in gui.__controllers) {
-      gui.__controllers[i].updateDisplay();
+      controller = gui.__controllers[i];
+      controller.setValue(controller.getValue());
     }
     clearObjects(hitMeshes);
     loadHits(metadata);
@@ -256,26 +258,50 @@ var isNight = colorsFolder.add(gui_colors, '_night').listen();
 var colorReseter = colorsFolder.add(gui_colors, '_reset');
 var nextNhitsHelp = gui.add(metadata, 'next_nhits_help');
 var nextGapHelp = gui.add(metadata, 'next_gap_help');
+var controllerMap = {
+  'index': hitIndex,
+  'nhits': nHits,
+  'cluster_size': clusterSize,
+  'dt': dt,
+  'zscale': zScale,
+  'next_nhits': nextNhits,
+  'next_gap': nextGap,
+  'min_index': minIndex,
+  'max_index': maxIndex,
+  'camera': cameraSelector,
+};
+var updateURL = function(key, value) {
+  var url = new URI(window.location.href);
+  url.removeSearch(key);
+  url.addSearch(key, value);
+  window.history.pushState(null, '', url.toString());
+};
 hitIndex.onChange(function(newIndex) {
   clearObjects(hitMeshes);
   loadHits(metadata);
+  updateURL('index', newIndex);
 });
 nHits.onChange(function(newNHits) {
   clearObjects(hitMeshes);
   loadHits(metadata);
+  updateURL('nhits', newNHits);
 });
 zScale.onChange(function(newZScale) {
   clearObjects(hitMeshes);
   loadHits(metadata);
+  updateURL('zscale', newZScale);
 });
 minIndex.onChange(function(newMin) {
   gui.__controllers[0].__min = newMin;
+  updateURL('min_index', newMin);
 });
 maxIndex.onChange(function(newMax) {
   gui.__controllers[0].__max = newMax;
+  updateURL('max_index', newMax);
 });
 cameraSelector.onChange(function(newCamera) {
   camera = cameras[newCamera];
+  updateURL('camera', newCamera);
 });
 useLambertMaterial.onChange(function(newUseLambertMaterial) {
   clearObjects(hitMeshes);
@@ -463,6 +489,15 @@ function notifyIfHidden() {
   }
 };
 
+// Parse URL to see if we should load a particular event
+var currentURL = new URI(window.location.href);
+var query = currentURL.query(true);
+for(key in metadata) {
+  if(query.hasOwnProperty(key)) {
+    var value = Number(query[key]);
+    controllerMap[key].setValue(value);
+  }
+}
 
 function animate() {
   requestAnimationFrame(animate);

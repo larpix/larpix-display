@@ -26,8 +26,14 @@ var frontLight = new THREE.DirectionalLight(0xffffff);
 frontLight.position.set(0, 50, 100);
 scene.add(frontLight);
 var backLight = new THREE.DirectionalLight(0xffffff);
-backLight.position.set(0, 50, -100);
+backLight.position.set(0, -50, -100);
 scene.add(backLight);
+var sideLight = new THREE.DirectionalLight(0xffffff);
+sideLight.position.set(-300, -50, 100);
+scene.add(sideLight);
+var rightLight = new THREE.DirectionalLight(0xffffff);
+rightLight.position.set(300, 0, 100);
+scene.add(rightLight);
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);

@@ -274,7 +274,6 @@ var controllerMap = {
   'next_gap': nextGap,
   'min_index': minIndex,
   'max_index': maxIndex,
-  'camera': cameraSelector,
 };
 var updateURL = function(key, value) {
   var url = new URI(window.location.href);
@@ -307,7 +306,6 @@ maxIndex.onChange(function(newMax) {
 });
 cameraSelector.onChange(function(newCamera) {
   camera = cameras[newCamera];
-  updateURL('camera', newCamera);
 });
 useLambertMaterial.onChange(function(newUseLambertMaterial) {
   clearObjects(hitMeshes);

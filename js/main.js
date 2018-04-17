@@ -1,10 +1,9 @@
 var scene = new THREE.Scene();
-var perspectiveCamera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 var orthographicCamera = new THREE.OrthographicCamera(-window.innerWidth/2, window.innerWidth/2, window.innerHeight/2, -window.innerHeight/2, 0.1, 100000);
 var spriteCamera = orthographicCamera.clone();
 var spriteScene = new THREE.Scene();
 var camera = orthographicCamera;
-var cameras = {'orthographic': orthographicCamera, 'perspective': perspectiveCamera};
+var cameras = {'orthographic': orthographicCamera};
 spriteCamera.position.z = 80;
 spriteCamera.zoom = 6;
 spriteCamera.updateProjectionMatrix();
@@ -14,11 +13,6 @@ var reset_camera = function(cams) {
   ortho.zoom = 5;
   ortho.rotation.set(0, 0, 0);
   ortho.updateProjectionMatrix();
-  persp = cams['perspective'];
-  persp.position.set(0, 0, 80);
-  persp.zoom = 1;
-  persp.rotation.set(0, 0, 0);
-  persp.updateProjectionMatrix();
 };
 reset_camera(cameras);
 
@@ -45,7 +39,6 @@ var activePixelPadMaterial = new THREE.MeshBasicMaterial({color:0x00ff00});
 var inactivePixelPadMaterial = new THREE.MeshBasicMaterial({color:0x005500});
 
 scene.background = new THREE.Color(0xa7a7a7);
-perspectiveControls = new THREE.OrbitControls(perspectiveCamera, renderer.domElement);
 orthographicControls = new THREE.OrbitControls(orthographicCamera, renderer.domElement);
 
 var pixelOffset = {'x': -100, 'y': -100};
@@ -210,7 +203,6 @@ var metadata = {
     clearObjects(hitMeshes);
     loadHits(metadata);
   },
-  'camera': 'orthographic',
   'shading': true,
   'next_nhits_help': nextGroupHelp,
   'next_gap_help': nextGapGroupHelp,
@@ -253,7 +245,6 @@ var nextNhits = gui.add(metadata, 'next_nhits');
 var nextGap = gui.add(metadata, 'next_gap');
 var minIndex = gui.add(metadata, 'min_index', 0, 1000000).step(1);
 var maxIndex = gui.add(metadata, 'max_index', 0, 1000000).step(1);
-var cameraSelector = gui.add(metadata, 'camera', ['orthographic', 'perspective']);
 var cameraReseter = gui.add(gui_controls, 'reset');
 var useLambertMaterial = gui.add(metadata, 'shading');
 var colorsFolder = gui.addFolder('Colors');
@@ -303,9 +294,6 @@ minIndex.onChange(function(newMin) {
 maxIndex.onChange(function(newMax) {
   gui.__controllers[0].__max = newMax;
   updateURL('max_index', newMax);
-});
-cameraSelector.onChange(function(newCamera) {
-  camera = cameras[newCamera];
 });
 useLambertMaterial.onChange(function(newUseLambertMaterial) {
   clearObjects(hitMeshes);

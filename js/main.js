@@ -73,7 +73,7 @@ $.get('sensor_plane_28_full.txt', function(rawPixelGeometry) {
 $.getJSON('bern-2.json', function(data) {
   metadata['data'] = data;
   loadHits(metadata);
-  controllerMap['index'].__max = data.length;
+  controllerMap['Hit index'].__max = data.length;
   controllerMap['min_index'].__max = data.length;
   controllerMap['max_index'].__max = data.length;
 });
@@ -150,26 +150,26 @@ var nextGapGroupHelp = function() {
 
 var gui = new dat.GUI();
 var metadata = {
-  'index': 0,
+  'Hit index': 0,
   'min_index': 0,
   'max_index': 1000,
-  'nhits': 10,
-  'cluster_size': 10,
-  'dt': 100,
-  'zscale': 1000,
+  'Hits displayed': 10,
+  'Multiplicity cut': 10,
+  'Time cut': 100,
+  'Z scale': 1000,
   'data': [[]],
-  'next_nhits': function() {
+  'Next cluster': function() {
     data = metadata.data;
-    index = metadata.index + metadata.cluster_size;
-    nhits = metadata.cluster_size;
-    dt = metadata.dt * 1000;
-    indexController = controllerMap['index'];
+    index = metadata['Hit index'] + metadata['Multiplicity cut'];
+    nhits = metadata['Multiplicity cut'];
+    dt = metadata['Time cut'] * 1000;
+    indexController = controllerMap['Hit index'];
     next_index = nextGroup(data, index, nhits, dt);
-    metadata.max_index = next_index + 3*metadata.nhits;
+    metadata.max_index = next_index + 3*metadata['Hits displayed'];
     indexController.__max = metadata.max_index;
-    metadata.min_index = next_index - 3*metadata.nhits;
+    metadata.min_index = next_index - 3*metadata['Hits displayed'];
     indexController.__min = metadata.min_index;
-    metadata.index = next_index;
+    metadata['Hit index'] = next_index;
     for(var key in controllerMap) {
       controller = controllerMap[key];
       controller.setValue(controller.getValue());
@@ -177,25 +177,25 @@ var metadata = {
     clearObjects(hitMeshes);
     loadHits(metadata);
   },
-  'next_gap': function() {
+  'Next anticluster': function() {
     data = metadata.data;
-    index = metadata.index;
-    dt = metadata.dt * 1000;
-    indexController = controllerMap['index'];
+    index = metadata['Hit index'];
+    dt = metadata['Time cut'] * 1000;
+    indexController = controllerMap['Hit index'];
     good_range = [];
     nhits = 0;
-    while(nhits < metadata.cluster_size) {
+    while(nhits < metadata['Multiplicity cut']) {
       good_range = nextGapGroup(data, index, dt);
       nhits = good_range[1] - good_range[0] + 1;
       index = good_range[0];
       console.log(good_range);
     }
-    metadata.nhits = nhits;
+    metadata['Hits displayed'] = nhits;
     metadata.max_index = good_range[1] + 2*nhits;
     metadata.min_index = good_range[0] - 2*nhits;
     indexController.__max = metadata.max_index;
     indexController.__min = metadata.min_index;
-    metadata.index = good_range[0];
+    metadata['Hit index'] = good_range[0];
     for(var key in controllerMap) {
       controller = controllerMap[key];
       controller.setValue(controller.getValue());
@@ -204,12 +204,12 @@ var metadata = {
     loadHits(metadata);
   },
   'shading': true,
-  'next_nhits_help': nextGroupHelp,
-  'next_gap_help': nextGapGroupHelp,
+  'Cluster help': nextGroupHelp,
+  'Anticluster help': nextGapGroupHelp,
 
 };
 var gui_controls = {
-  'reset': function() {
+  'Reset camera': function() {
     reset_camera(cameras);
   }
 };
@@ -221,7 +221,7 @@ var gui_colors = {
   '_active_pixel_color': function(x) { activePixelPadMaterial.color.set(x); },
   '_inactive_pixel_color': function(x) { inactivePixelPadMaterial.color.set(x); },
   '_backup': {},
-  '_reset': function() {
+  'Reset colors': function() {
     for(key in gui_colors._backup) {
       gui_key = key.substr(1);
       gui_colors[gui_key] = gui_colors._backup[key];
@@ -229,25 +229,25 @@ var gui_colors = {
       gui_colors[color_key](gui_colors[gui_key]);
     }
   },
-  '_night': false
+  'Night mode': false
 };
 for(key in gui_colors) {
   if(key[0] == '_') { continue; }
   gui_colors._backup['_' + key] = gui_colors[key];
 }
-var hitIndex = gui.add(metadata, 'index', 0, 1000000).step(1);
-var nextNhits = gui.add(metadata, 'next_nhits');
-var nextGap = gui.add(metadata, 'next_gap');
-var cameraReseter = gui.add(gui_controls, 'reset');
+var hitIndex = gui.add(metadata, 'Hit index', 0, 1000000).step(1);
+var nextNhits = gui.add(metadata, 'Next cluster');
+var nextGap = gui.add(metadata, 'Next anticluster');
+var cameraReseter = gui.add(gui_controls, 'Reset camera');
 
 var detailsFolder = gui.addFolder('Details');
 var colorsFolder = gui.addFolder('Colors');
 var helpFolder = gui.addFolder('Help');
 
-var nHits = detailsFolder.add(metadata, 'nhits', 0).step(1);
-var clusterSize = detailsFolder.add(metadata, 'cluster_size', 0).step(1);
-var dt = detailsFolder.add(metadata, 'dt').step(1);
-var zScale = detailsFolder.add(metadata, 'zscale', 100, 5000).step(50);
+var nHits = detailsFolder.add(metadata, 'Hits displayed', 0).step(1);
+var clusterSize = detailsFolder.add(metadata, 'Multiplicity cut', 0).step(1);
+var dt = detailsFolder.add(metadata, 'Time cut').step(1);
+var zScale = detailsFolder.add(metadata, 'Z scale', 100, 5000).step(50);
 var minIndex = detailsFolder.add(metadata, 'min_index', 0, 1000000).step(1);
 var maxIndex = detailsFolder.add(metadata, 'max_index', 0, 1000000).step(1);
 
@@ -255,17 +255,17 @@ var useLambertMaterial = colorsFolder.add(metadata, 'shading');
 var color_background = colorsFolder.addColor(gui_colors, 'background').listen();
 var color_active_pixel = colorsFolder.addColor(gui_colors, 'active_pixel').listen();
 var color_inactive_pixel = colorsFolder.addColor(gui_colors, 'inactive_pixel').listen();
-var isNight = colorsFolder.add(gui_colors, '_night').listen();
-var colorReseter = colorsFolder.add(gui_colors, '_reset');
+var isNight = colorsFolder.add(gui_colors, 'Night mode').listen();
+var colorReseter = colorsFolder.add(gui_colors, 'Reset colors');
 
-var nextNhitsHelp = helpFolder.add(metadata, 'next_nhits_help');
-var nextGapHelp = helpFolder.add(metadata, 'next_gap_help');
+var nextNhitsHelp = helpFolder.add(metadata, 'Cluster help');
+var nextGapHelp = helpFolder.add(metadata, 'Anticluster help');
 var controllerMap = {
-  'index': hitIndex,
-  'nhits': nHits,
-  'cluster_size': clusterSize,
-  'dt': dt,
-  'zscale': zScale,
+  'Hit index': hitIndex,
+  'Hits displayed': nHits,
+  'Multiplicity cut': clusterSize,
+  'Time cut': dt,
+  'Z scale': zScale,
   'min_index': minIndex,
   'max_index': maxIndex,
 };
@@ -278,24 +278,24 @@ var updateURL = function(key, value) {
 hitIndex.onChange(function(newIndex) {
   clearObjects(hitMeshes);
   loadHits(metadata);
-  updateURL('index', newIndex);
+  updateURL('Hit index', newIndex);
 });
 nHits.onChange(function(newNHits) {
   clearObjects(hitMeshes);
   loadHits(metadata);
-  updateURL('nhits', newNHits);
+  updateURL('Hits displayed', newNHits);
 });
 zScale.onChange(function(newZScale) {
   clearObjects(hitMeshes);
   loadHits(metadata);
-  updateURL('zscale', newZScale);
+  updateURL('Z scale', newZScale);
 });
 minIndex.onChange(function(newMin) {
-  controllerMap['index'].__min = newMin;
+  controllerMap['Hit index'].__min = newMin;
   updateURL('min_index', newMin);
 });
 maxIndex.onChange(function(newMax) {
-  controllerMap['index'].__max = newMax;
+  controllerMap['Hit index'].__max = newMax;
   updateURL('max_index', newMax);
 });
 useLambertMaterial.onChange(function(newUseLambertMaterial) {
@@ -413,9 +413,9 @@ scene.add(rulerMesh);
 var hitMeshes = [];
 function loadHits(gui_metadata) {
   data = gui_metadata['data'];
-  index = gui_metadata['index'];
-  nhits = gui_metadata['nhits'];
-  zDivisor = gui_metadata['zscale'];
+  index = gui_metadata['Hit index'];
+  nhits = gui_metadata['Hits displayed'];
+  zDivisor = gui_metadata['Z scale'];
   useLambert = gui_metadata['shading'];
   rulerMesh.scale.z = 1000/zDivisor;
   rulerMesh.position.set(50, 0, 10*rulerMesh.scale.z/2);

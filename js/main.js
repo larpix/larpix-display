@@ -73,9 +73,9 @@ $.get('sensor_plane_28_full.txt', function(rawPixelGeometry) {
 $.getJSON('bern-2.json', function(data) {
   metadata['data'] = data;
   loadHits(metadata);
-  gui.__controllers[0].__max = data.length;
-  gui.__controllers[2].__max = data.length;
-  gui.__controllers[3].__max = data.length;
+  controllerMap['index'].__max = data.length;
+  controllerMap['min_index'].__max = data.length;
+  controllerMap['max_index'].__max = data.length;
 });
 
 /**
@@ -163,15 +163,15 @@ var metadata = {
     index = metadata.index + metadata.cluster_size;
     nhits = metadata.cluster_size;
     dt = metadata.dt * 1000;
-    indexController = gui.__controllers[0];
+    indexController = controllerMap['index'];
     next_index = nextGroup(data, index, nhits, dt);
     metadata.max_index = next_index + 3*metadata.nhits;
     indexController.__max = metadata.max_index;
     metadata.min_index = next_index - 3*metadata.nhits;
     indexController.__min = metadata.min_index;
     metadata.index = next_index;
-    for(var i in gui.__controllers) {
-      controller = gui.__controllers[i];
+    for(var key in controllerMap) {
+      controller = controllerMap[key];
       controller.setValue(controller.getValue());
     }
     clearObjects(hitMeshes);
@@ -181,7 +181,7 @@ var metadata = {
     data = metadata.data;
     index = metadata.index;
     dt = metadata.dt * 1000;
-    indexController = gui.__controllers[0];
+    indexController = controllerMap['index'];
     good_range = [];
     nhits = 0;
     while(nhits < metadata.cluster_size) {
@@ -196,8 +196,8 @@ var metadata = {
     indexController.__max = metadata.max_index;
     indexController.__min = metadata.min_index;
     metadata.index = good_range[0];
-    for(var i in gui.__controllers) {
-      controller = gui.__controllers[i];
+    for(var key in controllerMap) {
+      controller = controllerMap[key];
       controller.setValue(controller.getValue());
     }
     clearObjects(hitMeshes);
@@ -235,34 +235,37 @@ for(key in gui_colors) {
   if(key[0] == '_') { continue; }
   gui_colors._backup['_' + key] = gui_colors[key];
 }
-var hitMeshes = [];
 var hitIndex = gui.add(metadata, 'index', 0, 1000000).step(1);
-var nHits = gui.add(metadata, 'nhits', 0).step(1);
-var clusterSize = gui.add(metadata, 'cluster_size', 0).step(1);
-var dt = gui.add(metadata, 'dt').step(1);
-var zScale = gui.add(metadata, 'zscale', 100, 5000).step(50);
 var nextNhits = gui.add(metadata, 'next_nhits');
 var nextGap = gui.add(metadata, 'next_gap');
-var minIndex = gui.add(metadata, 'min_index', 0, 1000000).step(1);
-var maxIndex = gui.add(metadata, 'max_index', 0, 1000000).step(1);
 var cameraReseter = gui.add(gui_controls, 'reset');
-var useLambertMaterial = gui.add(metadata, 'shading');
+
+var detailsFolder = gui.addFolder('Details');
 var colorsFolder = gui.addFolder('Colors');
+var helpFolder = gui.addFolder('Help');
+
+var nHits = detailsFolder.add(metadata, 'nhits', 0).step(1);
+var clusterSize = detailsFolder.add(metadata, 'cluster_size', 0).step(1);
+var dt = detailsFolder.add(metadata, 'dt').step(1);
+var zScale = detailsFolder.add(metadata, 'zscale', 100, 5000).step(50);
+var minIndex = detailsFolder.add(metadata, 'min_index', 0, 1000000).step(1);
+var maxIndex = detailsFolder.add(metadata, 'max_index', 0, 1000000).step(1);
+
+var useLambertMaterial = colorsFolder.add(metadata, 'shading');
 var color_background = colorsFolder.addColor(gui_colors, 'background').listen();
 var color_active_pixel = colorsFolder.addColor(gui_colors, 'active_pixel').listen();
 var color_inactive_pixel = colorsFolder.addColor(gui_colors, 'inactive_pixel').listen();
 var isNight = colorsFolder.add(gui_colors, '_night').listen();
 var colorReseter = colorsFolder.add(gui_colors, '_reset');
-var nextNhitsHelp = gui.add(metadata, 'next_nhits_help');
-var nextGapHelp = gui.add(metadata, 'next_gap_help');
+
+var nextNhitsHelp = helpFolder.add(metadata, 'next_nhits_help');
+var nextGapHelp = helpFolder.add(metadata, 'next_gap_help');
 var controllerMap = {
   'index': hitIndex,
   'nhits': nHits,
   'cluster_size': clusterSize,
   'dt': dt,
   'zscale': zScale,
-  'next_nhits': nextNhits,
-  'next_gap': nextGap,
   'min_index': minIndex,
   'max_index': maxIndex,
 };
@@ -288,11 +291,11 @@ zScale.onChange(function(newZScale) {
   updateURL('zscale', newZScale);
 });
 minIndex.onChange(function(newMin) {
-  gui.__controllers[0].__min = newMin;
+  controllerMap['index'].__min = newMin;
   updateURL('min_index', newMin);
 });
 maxIndex.onChange(function(newMax) {
-  gui.__controllers[0].__max = newMax;
+  controllerMap['index'].__max = newMax;
   updateURL('max_index', newMax);
 });
 useLambertMaterial.onChange(function(newUseLambertMaterial) {
@@ -407,6 +410,7 @@ rulerGeometry = new THREE.BoxGeometry(0.5, 0.5, 10);
 rulerMesh = new THREE.Mesh(rulerGeometry, rulerMaterial);
 rulerMesh.position.set(50, 0, 5)
 scene.add(rulerMesh);
+var hitMeshes = [];
 function loadHits(gui_metadata) {
   data = gui_metadata['data'];
   index = gui_metadata['index'];

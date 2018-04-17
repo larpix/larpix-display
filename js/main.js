@@ -193,7 +193,7 @@ var metadata = {
     nhits = 0;
     while(nhits < metadata.cluster_size) {
       good_range = nextGapGroup(data, index, dt);
-      nhits = good_range[1] - good_range[0];
+      nhits = good_range[1] - good_range[0] + 1;
       index = good_range[0];
       console.log(good_range);
     }

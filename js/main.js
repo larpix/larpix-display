@@ -409,12 +409,15 @@ function loadColorMap(scale, position) {
   );
 
 };
+/*
 var adcScale = chroma.cubehelix()
   .lightness([0.1, 0.9])
   .start(300)
   .hue(2)
   .gamma(1)
   .rotations(-1).scale().domain([0, 100]);
+  */
+var adcScale = chroma.scale(['black', 'violet', 'blue', 'green', 'yellow', 'orange', 'red']).domain([0, 100]).classes(7);
 loadColorMap(adcScale, [window.innerWidth/15, -window.innerHeight/15, 0]);
 // Set up the ruler
 rulerMaterial = new THREE.LineBasicMaterial({color: 0xfeb24c, linewidth: 3});

@@ -333,11 +333,13 @@ function placeText(text, position, fillColor, strokeColor, fontSize) {
   canvas.height = 100;
   canvas.width = 350;
   context = canvas.getContext('2d');
-  context.font = fontSize + ' Arial';
+  context.font = fontSize + ' Helvetica';
   context.fillStyle = fillColor;
   context.strokeStyle = strokeColor;
-  context.fillText(text, 30, 80);
-  context.strokeText(text, 30, 80);
+  context.fillText(text, 30, 99);
+  if(strokeColor != null) {
+    context.strokeText(text, 30, 99);
+  }
   texture = new THREE.Texture(canvas);
   texture.needsUpdate = true;
   material = new THREE.MeshBasicMaterial({map: texture, side:THREE.DoubleSide});
@@ -379,20 +381,20 @@ function loadColorMap(scale, position) {
   }
   mesh = placeText(low,
       [position[0] + width, position[1], position[2]],
-      colors[0],
-      colors[nSwatches-1],
+      0x000000,
+      null,
       '80px'
   );
   mesh = placeText(low+diff,
       [position[0] + width, position[1] + nSwatches * height, position[2]],
-      colors[nSwatches-1],
-      colors[0],
+      0x000000,
+      null,
       '80px'
   );
   mesh = placeText('mV',
       [position[0] - 3, position[1] + nSwatches*height + 5, position[2]],
-      colors[Math.floor(nSwatches/2)],
-      colors[Math.floor(nSwatches/2)],
+      0x000000,
+      null,
       '80px'
   );
 
@@ -403,7 +405,7 @@ var adcScale = chroma.cubehelix()
   .hue(2)
   .gamma(1)
   .rotations(-1).scale().domain([0, 100]);
-loadColorMap(adcScale, [60, 0, 0]);
+loadColorMap(adcScale, [window.innerWidth/15, -window.innerHeight/15, 0]);
 // Set up the ruler
 rulerMaterial = new THREE.MeshBasicMaterial({color: 0xfeb24c});
 rulerGeometry = new THREE.BoxGeometry(0.5, 0.5, 10);

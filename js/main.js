@@ -70,14 +70,6 @@ $.get('sensor_plane_28_full.txt', function(rawPixelGeometry) {
 }, 'text');
 
 
-$.getJSON('bern-2.json', function(data) {
-  metadata['data'] = data;
-  loadHits(metadata);
-  controllerMap['Hit index'].__max = data.length;
-  controllerMap['min_index'].__max = data.length;
-  controllerMap['max_index'].__max = data.length;
-});
-
 /**
  * Find the next group of data points (after index <start>) with <n>
  * hits within time window <dt>.
@@ -508,6 +500,26 @@ function notifyIfHidden() {
   }
 };
 
+var loadData = function(data) {
+  metadata['data'] = data;
+  loadHits(metadata);
+  controllerMap['Hit index'].__max = data.length;
+  controllerMap['min_index'].__max = data.length;
+  controllerMap['max_index'].__max = data.length;
+  localStorage.setItem('bern-3.5.json', JSON.stringify(data));
+  console.log('Saved file. Here\'s the beginning:');
+  console.log(localStorage.getItem('bern-3.5.json'));
+};
+
+if(localStorage.getItem('bern-3.5.json')) {
+  console.log('has local storage');
+  data = JSON.parse(localStorage.getItem('bern-3.5.json'));
+  loadData(data);
+}
+else {
+  console.log('does not have local storage');
+$.getJSON('bern-3.5.json', loadData);
+}
 var setUpLegend = function() {
   $('body').append('<div id="legend"></div>');
   legend = $('#legend');

@@ -148,6 +148,15 @@ var nextGapGroupHelp = function() {
   alert(helpText);
 };
 
+updateLegend = function() {
+  var low_index = metadata['Hit index'];
+  var high_index = low_index + metadata['Hits displayed'] - 1;
+  var data = metadata['data'];
+  var unixTime_ms = data[low_index][8] / 1e6;
+  var time = new Date(unixTime_ms);
+  $('#event-time').text('Time: ' + time.toUTCString());
+};
+
 var gui = new dat.GUI();
 var metadata = {
   'Hit index': 0,
@@ -206,7 +215,7 @@ var metadata = {
   'shading': true,
   'Cluster help': nextGroupHelp,
   'Anticluster help': nextGapGroupHelp,
-
+  'Update legend': updateLegend,
 };
 var gui_controls = {
   'Reset camera': function() {
@@ -239,6 +248,7 @@ var hitIndex = gui.add(metadata, 'Hit index', 0, 1000000).step(1);
 var nextNhits = gui.add(metadata, 'Next cluster');
 var nextGap = gui.add(metadata, 'Next anticluster');
 var cameraReseter = gui.add(gui_controls, 'Reset camera');
+var updateLegendButton = gui.add(metadata, 'Update legend');
 
 var detailsFolder = gui.addFolder('Details');
 var colorsFolder = gui.addFolder('Colors');
@@ -486,6 +496,33 @@ function notifyIfHidden() {
     spriteScene.add(warnSprite);
   }
 };
+
+var setUpLegend = function() {
+  $('body').append('<div id="legend"></div>');
+  legend = $('#legend');
+  legend.text('Legend!');
+  legend.append('<div id="larpix-title" class="default"></div>');
+  legend.append('<div id="event-time" class="default"></div>');
+  legend.append('<div id="event-index" class="default"></div>');
+  legend.append('<div id="data-file" class="default"></div>');
+  legend.css({
+    position: 'absolute',
+    bottom: '40px',
+    left: '80px',
+  });
+  $('.default').css({
+    'font-size': '14pt',
+    'font-family': 'Helvetica, sans-serif',
+  });
+  $('#larpix-title').text('LArPix').css({
+    'font-size': '20pt',
+  });
+  $('#event-time').text('Time: ');
+  $('#event-index').text('Event index range: ');
+  $('#data-file').text('Data file: ');
+};
+setUpLegend();
+
 
 // Parse URL to see if we should load a particular event
 var currentURL = new URI(window.location.href);

@@ -417,11 +417,21 @@ var adcScale = chroma.cubehelix()
   .rotations(-1).scale().domain([0, 100]);
 loadColorMap(adcScale, [window.innerWidth/15, -window.innerHeight/15, 0]);
 // Set up the ruler
-rulerMaterial = new THREE.MeshBasicMaterial({color: 0xfeb24c});
-rulerGeometry = new THREE.BoxGeometry(0.5, 0.5, 10);
-rulerMesh = new THREE.Mesh(rulerGeometry, rulerMaterial);
-rulerMesh.position.set(50, 0, 5)
-scene.add(rulerMesh);
+rulerMaterial = new THREE.LineBasicMaterial({color: 0xfeb24c, linewidth: 3});
+rulerGeometry = new THREE.Geometry();
+rulerGeometry.vertices.push(new THREE.Vector3(0, 0, -5), new THREE.Vector3(0, 0, 5));
+rulerGeometry.computeLineDistances();
+timeScaleMesh = new THREE.Line(rulerGeometry, rulerMaterial);
+xScaleMesh = new THREE.Line(rulerGeometry, rulerMaterial);
+yScaleMesh = new THREE.Line(rulerGeometry, rulerMaterial);
+timeScaleMesh.position.set(-50, -30, 5);
+xScaleMesh.rotation.y = 3.14159/2;
+xScaleMesh.position.set(-45, -30, 0);
+yScaleMesh.rotation.x = 3.14159/2;
+yScaleMesh.position.set(-50, -25, 0);
+scene.add(timeScaleMesh);
+scene.add(xScaleMesh);
+scene.add(yScaleMesh);
 var hitMeshes = [];
 function loadHits(gui_metadata) {
   data = gui_metadata['data'];
@@ -429,8 +439,8 @@ function loadHits(gui_metadata) {
   nhits = gui_metadata['Hits displayed'];
   zDivisor = gui_metadata['Z scale'];
   useLambert = gui_metadata['shading'];
-  rulerMesh.scale.z = 1000/zDivisor;
-  rulerMesh.position.set(50, 0, 10*rulerMesh.scale.z/2);
+  timeScaleMesh.scale.z = 1000/zDivisor;
+  timeScaleMesh.position.set(-50, -30, 10*timeScaleMesh.scale.z/2);
   var MeshMaterial = null;
   if(useLambert) {
     MeshMaterial = THREE.MeshLambertMaterial;

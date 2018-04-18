@@ -151,6 +151,44 @@ updateLegend = function() {
   $('#data-file').text('Data file: datalog_2018_04_13_15_37_01_CEST_.dat');
 };
 
+var loadFileList = function() {
+  console.log('in loadFileList');
+  $.getJSON('data/fileList.json', function(list) {
+    console.log('loading fileList');
+    metadata['fileList'] = list;
+    filePicker = gui.add(metadata, 'Data file', [''].concat(getFileNames(metadata['fileList'])));
+  });
+};
+var getFileNames = function(fileList) {
+  files = [];
+  for(i in fileList) {
+    files.push(fileList[i]['name']);
+  }
+  return files;
+};
+var lookUpGeometry = function(fileList, fileName) {
+  for(i in fileList) {
+    info = fileList[i];
+    if(info['name'] === fileName) {
+      return info['geometry'];
+    }
+  }
+};
+
+loadFileList();
+
+var retrieveFile = function(fileName) {
+  if(localStorage.getItem(fileName)) {
+    console.log('has local storage');
+    var data = JSON.parse(localStorage.getItem(fileName));
+    loadData(data);
+  }
+  else {
+    console.log('does not have local storage');
+  $.getJSON('data/' + fileName, loadData);
+  }
+};
+
 var gui = new dat.GUI();
 var metadata = {
   'Hit index': 0,
@@ -209,6 +247,8 @@ var metadata = {
   'shading': true,
   'Cluster help': nextGroupHelp,
   'Anticluster help': nextGapGroupHelp,
+  'Data file': '',
+  'fileList': [],
 };
 var gui_controls = {
   'Reset camera': function() {
@@ -241,6 +281,7 @@ var hitIndex = gui.add(metadata, 'Hit index', 0, 1000000).step(1);
 var nextNhits = gui.add(metadata, 'Next cluster');
 var nextGap = gui.add(metadata, 'Next anticluster');
 var cameraReseter = gui.add(gui_controls, 'Reset camera');
+var filePicker;
 
 var detailsFolder = gui.addFolder('Details');
 var colorsFolder = gui.addFolder('Colors');
@@ -511,15 +552,6 @@ var loadData = function(data) {
   console.log(localStorage.getItem('bern-3.5.json'));
 };
 
-if(localStorage.getItem('bern-3.5.json')) {
-  console.log('has local storage');
-  data = JSON.parse(localStorage.getItem('bern-3.5.json'));
-  loadData(data);
-}
-else {
-  console.log('does not have local storage');
-$.getJSON('bern-3.5.json', loadData);
-}
 var setUpLegend = function() {
   $('body').append('<div id="legend"></div>');
   legend = $('#legend');

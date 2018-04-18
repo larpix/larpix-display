@@ -155,6 +155,8 @@ updateLegend = function() {
   var unixTime_ms = data[low_index][8] / 1e6;
   var time = new Date(unixTime_ms);
   $('#event-time').text('Time: ' + time.toUTCString());
+  $('#event-index').text('Event index range: ' + low_index + ' -> ' + high_index);
+  $('#data-file').text('Data file: datalog_2018_04_13_15_37_01_CEST_.dat');
 };
 
 var gui = new dat.GUI();
@@ -215,7 +217,6 @@ var metadata = {
   'shading': true,
   'Cluster help': nextGroupHelp,
   'Anticluster help': nextGapGroupHelp,
-  'Update legend': updateLegend,
 };
 var gui_controls = {
   'Reset camera': function() {
@@ -248,7 +249,6 @@ var hitIndex = gui.add(metadata, 'Hit index', 0, 1000000).step(1);
 var nextNhits = gui.add(metadata, 'Next cluster');
 var nextGap = gui.add(metadata, 'Next anticluster');
 var cameraReseter = gui.add(gui_controls, 'Reset camera');
-var updateLegendButton = gui.add(metadata, 'Update legend');
 
 var detailsFolder = gui.addFolder('Details');
 var colorsFolder = gui.addFolder('Colors');
@@ -465,6 +465,9 @@ function loadHits(gui_metadata) {
   }
   //console.log(color_values);
   console.log(times);
+  if(hits.length > 0) {
+    updateLegend();
+  }
 };
 
 function allVisible(meshes) {
@@ -483,28 +486,23 @@ function allVisible(meshes) {
   return soFarVisible;
 };
 
-warnMaterial = new THREE.SpriteMaterial({color: 0xff0000});
-warnSprite = new THREE.Sprite(warnMaterial);
-warnSprite.position.set(60, -40, 0)
-warnSprite.scale.set(5, 5, 1);
-warnSprite.transparent = false;
 function notifyIfHidden() {
   if(allVisible(hitMeshes)) {
-    spriteScene.remove(warnSprite);
+    $('#clip-warning').css({'visibility': 'hidden'});
   }
   else {
-    spriteScene.add(warnSprite);
+    $('#clip-warning').css({'visibility': 'visible'});
   }
 };
 
 var setUpLegend = function() {
   $('body').append('<div id="legend"></div>');
   legend = $('#legend');
-  legend.text('Legend!');
   legend.append('<div id="larpix-title" class="default"></div>');
   legend.append('<div id="event-time" class="default"></div>');
   legend.append('<div id="event-index" class="default"></div>');
   legend.append('<div id="data-file" class="default"></div>');
+  legend.append('<div id="clip-warning" class="default"></div>');
   legend.css({
     position: 'absolute',
     bottom: '40px',
@@ -520,6 +518,11 @@ var setUpLegend = function() {
   $('#event-time').text('Time: ');
   $('#event-index').text('Event index range: ');
   $('#data-file').text('Data file: ');
+  $('#clip-warning').text('Not all hits are visible')
+    .css({
+      'color': '#ff0000',
+      'visibility': 'hidden',
+    });
 };
 setUpLegend();
 

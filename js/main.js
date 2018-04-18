@@ -162,7 +162,7 @@ var metadata = {
   'Z scale': 1000,
   'data': [[]],
   'Next cluster': function() {
-    data = metadata.data;
+    var data = metadata.data;
     index = metadata['Hit index'] + metadata['Multiplicity cut'];
     nhits = metadata['Multiplicity cut'];
     dt = metadata['Time cut'] * 1000;
@@ -181,7 +181,7 @@ var metadata = {
     loadHits(metadata);
   },
   'Next anticluster': function() {
-    data = metadata.data;
+    var data = metadata.data;
     index = metadata['Hit index'];
     dt = metadata['Time cut'] * 1000;
     indexController = controllerMap['Hit index'];
@@ -429,7 +429,7 @@ scene.add(xScaleMesh);
 scene.add(yScaleMesh);
 var hitMeshes = [];
 function loadHits(gui_metadata) {
-  data = gui_metadata['data'];
+  var data = gui_metadata['data'];
   index = gui_metadata['Hit index'];
   nhits = gui_metadata['Hits displayed'];
   zDivisor = gui_metadata['Z scale'];

@@ -1,0 +1,26 @@
+[
+{
+  "name": "data_2018_02_13_16_39_33_PST_.h5.json",
+  "geometry": "sensor_plane_28_simple.txt"
+},
+{
+  "name": "data_2018_02_13_16_12_21_PST_.h5.json",
+  "geometry": "sensor_plane_28_simple.txt"
+},
+{
+  "name": "data_2018_02_13_16_51_23_PST_.h5.json",
+  "geometry": "sensor_plane_28_simple.txt"
+},
+{
+  "name": "data_2018_02_13_16_05_59_PST_.h5.json",
+  "geometry": "sensor_plane_28_simple.txt"
+},
+{
+  "name": "bern-1.json",
+  "geometry": "sensor_plane_28_bern.txt"
+},
+{
+  "name": "bern-3.5.json",
+  "geometry": "sensor_plane_28_bern.txt"
+}
+]

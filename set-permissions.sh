@@ -1,5 +1,3 @@
-#! /usr/bin/sh
-
 CORE_FILES="js/main.js js/lib/*.js js/lib/three/*.js index.html"
 GEOM_FILES="geometries/*.txt"
 DATA_FILES="data/*.json"

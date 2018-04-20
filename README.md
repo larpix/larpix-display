@@ -112,6 +112,7 @@ cut. For example:
 Time -------------->
 [ x   x     x x x x           x x x x x            x  x x x  x            ]
  <--Anticluster 1-->       <Anticluster 2>       <Anticluster 3>
+                   <---dt---->        <----dt---->
 ```
 
 - **Reset camera** Bring the camera back to the original zoom, pan, and

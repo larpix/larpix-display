@@ -278,7 +278,7 @@ var updateURL = function(key, value) {
   var url = new URI(window.location.href);
   url.removeSearch(key);
   url.addSearch(key, value);
-  window.history.pushState(null, '', url.toString());
+  window.history.replaceState(null, '', url.toString());
 };
 
 var setUpGUI = function(metadata, gui, gui_colors, hitMeshes, adcScale) {

@@ -166,7 +166,7 @@ var updateLegend = function(metadata) {
   var time = new Date(unixTime_ms);
   $('#event-time').text('Time: ' + time.toUTCString());
   $('#event-index').text('Event index range: ' + low_index + ' -> ' + high_index);
-  $('#data-file').text('Data file: datalog_2018_04_13_15_37_01_CEST_.dat');
+  $('#data-file').text('Data file: ' + metadata['Data file']);
 };
 
 var loadFileList = function(metadata, gui, pixelMeshes, hitMeshes, adcScale) {

@@ -32,6 +32,7 @@ scene.add(rightLight);
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+$('canvas').css({'display': 'block'});
 renderer.autoClear = false;
 
 scene.background = new THREE.Color(0xa7a7a7);

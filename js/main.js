@@ -594,14 +594,17 @@ window.addEventListener('resize', onWindowResize, false);
 function onWindowResize() {
   width = window.innerWidth;
   height = window.innerHeight;
-  cameras['perspective'].aspect = width/height;
   ortho = cameras['orthographic'];
   ortho.left = -width/2;
   ortho.right = width/2;
   ortho.top = height/2;
   ortho.bottom = -height/2;
-  cameras['perspective'].updateProjectionMatrix();
   ortho.updateProjectionMatrix();
+  spriteCamera.left = -width/2;
+  spriteCamera.right = width/2;
+  spriteCamera.top = height/2;
+  spriteCamera.bottom = -height/2;
+  spriteCamera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 };
 

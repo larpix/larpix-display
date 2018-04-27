@@ -210,8 +210,12 @@ var retrieveFile = function(fileName, hitMeshes, metadata, adcScale) {
   else {
     console.log('does not have local storage');
   $.getJSON('data/' + fileName, function(data) {
-    localStorage.setItem(fileName, JSON.stringify(data));
-    loadData(metadata, data, hitMeshes, adcScale);
+    try {
+      localStorage.setItem(fileName, JSON.stringify(data));
+    }
+    finally {
+      loadData(metadata, data, hitMeshes, adcScale);
+    }
   });
   }
 };

@@ -291,6 +291,7 @@ var setUpGUI = function(metadata, gui, gui_colors, hitMeshes, adcScale) {
   var nextNhits = gui.add(metadata, 'Next cluster');
   var nextGap = gui.add(metadata, 'Next anticluster');
   var cameraReseter = gui.add(metadata, 'Reset camera');
+  var tooltipEnable = gui.add(metadata, 'Tooltips');
   var filePicker;
 
   var detailsFolder = gui.addFolder('Details');
@@ -523,6 +524,8 @@ function loadHits(gui_metadata, hitMeshes, adcScale) {
     hitMeshes.push(hitMesh);
     color_values.push(color_value);
     times.push(time);
+    hitMesh.hitData = hit;
+    hitMesh.t0 = hits[0][8];
   }
   //console.log(color_values);
   console.log(times);
@@ -613,6 +616,56 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 };
 
+window.addEventListener('mousemove', onMouseMove, false);
+window.addEventListener('mousemove', showHoverHitInfo, false);
+function onMouseMove(event) {
+  global.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  global.mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+};
+
+function checkMouseHoverOver() {
+  var camera = cameras['orthographic'];
+  var ray = new THREE.Raycaster();
+  ray.setFromCamera(global.mouse, camera);
+
+  var intersects = ray.intersectObjects(global.hitMeshes);
+  return intersects;
+};
+
+function getHitInformation(hitMesh) {
+  var hitData = hitMesh.object.hitData;
+  var t0 = hitMesh.object.t0;
+  var toReturn = '' + (hitData[10] - hitData[11]) + 'mV (' + hitData[7] + 'ADC)';
+  return toReturn;
+};
+
+function updateTooltipText(text) {
+  $('#tooltip').text(text);
+};
+
+function showHoverHitInfo(event) {
+  if(!global.metadata['Tooltips']) {
+    $('#tooltip').css({ visibility: 'hidden' });
+    return;
+  }
+  var intersects = checkMouseHoverOver();
+  if(intersects.length > 0) {
+    hitMesh = intersects[0];
+    text = getHitInformation(hitMesh);
+    console.log(text);
+    updateTooltipText(text);
+    $('#tooltip').css({
+      'bottom': -event.clientY + window.innerHeight + 10,
+      'left': event.clientX + 10,
+      'font-size': '20pt',
+      'visibility': 'visible'
+    });
+  }
+  else {
+    $('#tooltip').css({ visibility: 'hidden' });
+  }
+};
+
 function animate() {
   requestAnimationFrame(animate);
   renderer.clear();
@@ -625,6 +678,8 @@ function animate() {
 var global = {};
 
 var main = function() {
+  var mouse = new THREE.Vector2();
+  global.mouse = mouse;
   var gui = new dat.GUI();
   global.gui = gui;
   var hitMeshes = [];
@@ -654,6 +709,7 @@ var main = function() {
     'Reset camera': function() {
       reset_camera(cameras);
     },
+    'Tooltips': true,
   };
   global.metadata = metadata;
   var gui_colors = {
@@ -682,6 +738,20 @@ var main = function() {
   var adcScale = setUpColorScale();
   loadFileList(metadata, gui, pixelMeshes, hitMeshes, adcScale);
   controllerMap = setUpGUI(metadata, gui, gui_colors, hitMeshes, adcScale);
+  $('body').append('<div class="default" id="tooltip"></div>');
+  $('.default').css({
+    'font-size': '14pt',
+    'font-family': 'Helvetica, sans-serif',
+  });
+  tooltip = $('#tooltip');
+  tooltip.css({
+    position: 'absolute',
+    bottom: '140px',
+    left: '180px',
+    'background-color': 'rgba(150, 150, 150, 0.8)',
+    'font-size': '20pt'
+  });
+  tooltip.text('Hello, world!');
   setUpRuler();
   setUpLegend();
   console.log('hit meshes = ');

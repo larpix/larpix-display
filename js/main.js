@@ -40,10 +40,8 @@ orthographicControls = new THREE.OrbitControls(orthographicCamera, renderer.domE
 
 var pixelOffset = {'x': -100, 'y': -100};
 
-var loadGeometry = function(geometryFile, pixelMeshes) {
+var loadGeometry = function(geometryFile, pixelMeshes, pixelMaterial) {
   var pixelPadGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.1);
-  var activePixelPadMaterial = new THREE.MeshBasicMaterial({color:0x00ff00});
-  var inactivePixelPadMaterial = new THREE.MeshBasicMaterial({color:0x005500});
   $.get('geometries/' + geometryFile, function(rawPixelGeometry) {
     for(i in pixelMeshes) {
       scene.remove(pixelMeshes[i]);
@@ -60,7 +58,7 @@ var loadGeometry = function(geometryFile, pixelMeshes) {
       x = pixel[1]+pixelOffset.x;
       y = pixel[2]+pixelOffset.y;
       if(activePixels.indexOf(pixel[0]) >= 0) {
-        pixelMesh = new THREE.Mesh(pixelPadGeometry, activePixelPadMaterial);
+        pixelMesh = new THREE.Mesh(pixelPadGeometry, pixelMaterial);
         pixelMesh.position.z = 0;
         pixelMesh.position.x = x;
         pixelMesh.position.y = y;
@@ -169,7 +167,7 @@ var updateLegend = function(metadata) {
   $('#data-file').text('Data file: ' + metadata['Data file']);
 };
 
-var loadFileList = function(metadata, gui, pixelMeshes, hitMeshes, adcScale) {
+var loadFileList = function(metadata, gui, pixelMeshes, pixelMaterial, hitMeshes, adcScale) {
   console.log('in loadFileList');
   $.getJSON('data/fileList.json', function(list) {
     console.log('loading fileList');
@@ -178,7 +176,7 @@ var loadFileList = function(metadata, gui, pixelMeshes, hitMeshes, adcScale) {
     controllerMap['Data file'] = filePicker;
     filePicker.onChange(function(newFileName) {
       retrieveFile(newFileName, hitMeshes, metadata, adcScale);
-      loadGeometry(lookUpGeometry(metadata['fileList'], newFileName), pixelMeshes);
+      loadGeometry(lookUpGeometry(metadata['fileList'], newFileName), pixelMeshes, pixelMaterial);
       updateURL('Data file', newFileName);
     });
     parseURL(metadata);
@@ -286,7 +284,7 @@ var updateURL = function(key, value) {
   window.history.replaceState(null, '', url.toString());
 };
 
-var setUpGUI = function(metadata, gui, gui_colors, hitMeshes, adcScale) {
+var setUpGUI = function(metadata, gui, gui_colors, hitMeshes, adcScale, pixelMaterial) {
   var hitIndex = gui.add(metadata, 'Hit index', 0, 1000000).step(1);
   var nextNhits = gui.add(metadata, 'Next cluster');
   var nextGap = gui.add(metadata, 'Next anticluster');
@@ -355,7 +353,7 @@ var setUpGUI = function(metadata, gui, gui_colors, hitMeshes, adcScale) {
     scene.background = new THREE.Color(newColor);
   });
   color_active_pixel.onChange(function(newColor) {
-    activePixelPadMaterial.color = new THREE.Color(newColor);
+    pixelMaterial.color = new THREE.Color(newColor);
   });
   color_inactive_pixel.onChange(function(newColor) {
     inactivePixelPadMaterial.color = new THREE.Color(newColor);
@@ -686,6 +684,7 @@ var main = function() {
   global.hitMeshes = hitMeshes;
   var pixelMeshes = [];
   global.pixelMeshes = pixelMeshes;
+  var pixelMaterial = new THREE.MeshBasicMaterial({color:0x00ff00});
   var metadata = {
     'Hit index': 0,
     'min_index': 0,
@@ -736,8 +735,8 @@ var main = function() {
     gui_colors._backup['_' + key] = gui_colors[key];
   }
   var adcScale = setUpColorScale();
-  loadFileList(metadata, gui, pixelMeshes, hitMeshes, adcScale);
-  controllerMap = setUpGUI(metadata, gui, gui_colors, hitMeshes, adcScale);
+  loadFileList(metadata, gui, pixelMeshes, pixelMaterial, hitMeshes, adcScale);
+  controllerMap = setUpGUI(metadata, gui, gui_colors, hitMeshes, adcScale, pixelMaterial);
   $('body').append('<div class="default" id="tooltip"></div>');
   $('.default').css({
     'font-size': '14pt',

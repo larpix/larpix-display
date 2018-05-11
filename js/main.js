@@ -306,7 +306,6 @@ var setUpGUI = function(metadata, gui, gui_colors, hitMeshes, adcScale, pixelMat
   var useLambertMaterial = colorsFolder.add(metadata, 'shading');
   var color_background = colorsFolder.addColor(gui_colors, 'background').listen();
   var color_active_pixel = colorsFolder.addColor(gui_colors, 'active_pixel').listen();
-  var color_inactive_pixel = colorsFolder.addColor(gui_colors, 'inactive_pixel').listen();
   var isNight = colorsFolder.add(gui_colors, 'Night mode').listen();
   var colorReseter = colorsFolder.add(gui_colors, 'Reset colors');
 
@@ -354,9 +353,6 @@ var setUpGUI = function(metadata, gui, gui_colors, hitMeshes, adcScale, pixelMat
   });
   color_active_pixel.onChange(function(newColor) {
     pixelMaterial.color = new THREE.Color(newColor);
-  });
-  color_inactive_pixel.onChange(function(newColor) {
-    inactivePixelPadMaterial.color = new THREE.Color(newColor);
   });
   isNight.onChange(function(night) {
     if(night) {
@@ -714,10 +710,7 @@ var main = function() {
   var gui_colors = {
     'background': '#a7a7a7',
     'active_pixel': '#00ff00',
-    'inactive_pixel': '#005500',
     '_background_color': function(x) { scene.background.set(x); },
-    '_active_pixel_color': function(x) { activePixelPadMaterial.color.set(x); },
-    '_inactive_pixel_color': function(x) { inactivePixelPadMaterial.color.set(x); },
     '_backup': {},
     'Reset colors': function() {
       for(key in gui_colors._backup) {

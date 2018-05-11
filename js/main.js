@@ -461,7 +461,7 @@ var setUpColorScale = function() {
 
 var setUpRuler = function() {
   // Set up the ruler
-  rulerMaterial = new THREE.LineBasicMaterial({color: 0xfeb24c, linewidth: 3});
+  rulerMaterial = new THREE.LineBasicMaterial({color: 0x000000, linewidth: 3});
   rulerGeometry = new THREE.Geometry();
   rulerGeometry.vertices.push(new THREE.Vector3(0, 0, -5), new THREE.Vector3(0, 0, 5));
   rulerGeometry.computeLineDistances();
@@ -476,6 +476,34 @@ var setUpRuler = function() {
   scene.add(timeScaleMesh);
   scene.add(xScaleMesh);
   scene.add(yScaleMesh);
+  // Set up labels
+  canvas = document.createElement('canvas');
+  context = canvas.getContext('2d');
+  context.font = '60px Helvetica';
+  context.fillStyle = 'rgba(0, 0, 0, 1)';
+  context.fillText('1 cm', 0, 60);
+  texture = new THREE.Texture(canvas);
+  texture.needsUpdate = true;
+  material = new THREE.SpriteMaterial({ map: texture, useScreenCoordinates: false });
+  var xsprite = new THREE.Sprite(material);
+  xsprite.scale.set(10, 10, 1);
+  xsprite.position.set(-40, -30, 0);
+  var ysprite = xsprite.clone();
+  ysprite.position.set(-50, -24, 0);
+  canvas = document.createElement('canvas');
+  context = canvas.getContext('2d');
+  context.font = '60px Helvetica';
+  context.fillStyle = 'rgba(0, 0, 0, 1)';
+  context.fillText('1 us', 0, 60);
+  texture = new THREE.Texture(canvas);
+  texture.needsUpdate = true;
+  material = new THREE.SpriteMaterial({ map: texture, useScreenCoordinates: false });
+  var zsprite = new THREE.Sprite(material);
+  zsprite.scale.set(10, 10, 1);
+  zsprite.position.set(-50, -30, 10);
+  scene.add(xsprite);
+  scene.add(ysprite);
+  scene.add(zsprite);
 };
 function loadHits(gui_metadata, hitMeshes, adcScale) {
   console.log('in loadHits, hitMeshes = ');

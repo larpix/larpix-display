@@ -168,9 +168,7 @@ var updateLegend = function(metadata) {
 };
 
 var loadFileList = function(metadata, gui, pixelMeshes, pixelMaterial, hitMeshes, adcScale) {
-  console.log('in loadFileList');
   $.getJSON('data/fileList.json', function(list) {
-    console.log('loading fileList');
     metadata['fileList'] = list;
     filePicker = gui.add(metadata, 'Data file', [''].concat(getFileNames(metadata['fileList'])));
     controllerMap['Data file'] = filePicker;
@@ -201,12 +199,10 @@ var lookUpGeometry = function(fileList, fileName) {
 
 var retrieveFile = function(fileName, hitMeshes, metadata, adcScale) {
   if(localStorage.getItem(fileName)) {
-    console.log('has local storage');
     var data = JSON.parse(localStorage.getItem(fileName));
     loadData(metadata, data, hitMeshes, adcScale);
   }
   else {
-    console.log('does not have local storage');
   $.getJSON('data/' + fileName, function(data) {
     try {
       localStorage.setItem(fileName, JSON.stringify(data));
@@ -258,7 +254,6 @@ var loadNextAntiCluster = function(gui_metadata, hitMeshes, adcScale) {
       good_range = nextGapGroup(data, index, dt);
       nhits = good_range[1] - good_range[0] + 1;
       index = good_range[0];
-      console.log(good_range);
     }
     gui_metadata['Hits displayed'] = nhits;
     gui_metadata.max_index = good_range[1] + 2*nhits;
@@ -273,7 +268,6 @@ var loadNextAntiCluster = function(gui_metadata, hitMeshes, adcScale) {
       controller = controllerMap[key];
       controller.setValue(controller.getValue());
     }
-    console.log(gui_metadata);
     clearObjects(hitMeshes);
     loadHits(gui_metadata, hitMeshes, adcScale);
 };
@@ -506,8 +500,6 @@ var setUpRuler = function() {
   scene.add(zsprite);
 };
 function loadHits(gui_metadata, hitMeshes, adcScale) {
-  console.log('in loadHits, hitMeshes = ');
-  console.log(hitMeshes);
   var data = gui_metadata['data'];
   index = gui_metadata['Hit index'];
   nhits = gui_metadata['Hits displayed'];
@@ -549,8 +541,6 @@ function loadHits(gui_metadata, hitMeshes, adcScale) {
     hitMesh.hitData = hit;
     hitMesh.t0 = hits[0][8];
   }
-  //console.log(color_values);
-  console.log(times);
   if(hits.length > 0) {
     updateLegend(gui_metadata);
   }
@@ -674,7 +664,6 @@ function showHoverHitInfo(event) {
   if(intersects.length > 0) {
     hitMesh = intersects[0];
     text = getHitInformation(hitMesh);
-    console.log(text);
     updateTooltipText(text);
     $('#tooltip').css({
       'bottom': -event.clientY + window.innerHeight + 10,
@@ -774,8 +763,6 @@ var main = function() {
   tooltip.text('Hello, world!');
   setUpRuler();
   setUpLegend();
-  console.log('hit meshes = ');
-  console.log(hitMeshes);
   animate(hitMeshes);
 };
 main();

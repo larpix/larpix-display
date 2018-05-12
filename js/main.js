@@ -494,7 +494,7 @@ var setUpRuler = function() {
   context = canvas.getContext('2d');
   context.font = '60px Helvetica';
   context.fillStyle = 'rgba(0, 0, 0, 1)';
-  context.fillText('1 us', 0, 60);
+  context.fillText('10 us', 0, 60);
   texture = new THREE.Texture(canvas);
   texture.needsUpdate = true;
   material = new THREE.SpriteMaterial({ map: texture, useScreenCoordinates: false });

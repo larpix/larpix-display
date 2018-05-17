@@ -702,9 +702,9 @@ var main = function() {
     'Hit index': 0,
     'min_index': 0,
     'max_index': 1000,
-    'Hits displayed': 10,
+    'Hits displayed': 1000,
     'Multiplicity cut': 10,
-    'Time cut': 100,
+    'Time cut': 500,
     'Z scale': 1000,
     'data': [[]],
     'Next hits': function() {

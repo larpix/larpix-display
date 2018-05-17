@@ -760,10 +760,10 @@ var main = function() {
     position: 'absolute',
     bottom: '140px',
     left: '180px',
+    visibility: 'hidden',
     'background-color': 'rgba(150, 150, 150, 0.8)',
     'font-size': '20pt'
   });
-  tooltip.text('Hello, world!');
   setUpRuler();
   setUpLegend();
   animate(hitMeshes);

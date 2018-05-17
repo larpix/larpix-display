@@ -446,9 +446,12 @@ var setUpColorScale = function() {
     .start(300)
     .hue(2)
     .gamma(1)
-    .rotations(-1).scale().domain([0, 100]);
-    */
-  var adcScale = chroma.scale(['black', 'violet', 'blue', 'green', 'yellow', 'orange', 'red']).domain([0, 100]).classes(7);
+    .rotations(-1).scale().domain([0, 100]).classes(7);
+  */
+  //var adcScale = chroma.scale(['violet', 'blue', 'green', 'yellow', 'orange', 'red']).domain([0, 100]).classes(6);
+  var adcScale = chroma.scale(['6c71c4', '2aa198', '859900', 'b58900', 'dc322f']).domain([0, 100]).classes(5);
+  //var adcScale = chroma.scale(['02fcff', 'fd00ff']).domain([0, 100]).classes(6);
+  //var adcScale = chroma.scale('RdBu').domain([0, 100]).classes(5);
   loadColorMap(adcScale, [window.innerWidth/15, -window.innerHeight/15, 0]);
   return adcScale;
 };

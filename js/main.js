@@ -35,7 +35,7 @@ document.body.appendChild(renderer.domElement);
 $('canvas').css({'display': 'block'});
 renderer.autoClear = false;
 
-scene.background = new THREE.Color(0xa7a7a7);
+scene.background = new THREE.Color(0xe7e7e7);
 orthographicControls = new THREE.OrbitControls(orthographicCamera, renderer.domElement);
 
 var pixelOffset = {'x': -100, 'y': -100};
@@ -280,8 +280,8 @@ var updateURL = function(key, value) {
 
 var setUpGUI = function(metadata, gui, gui_colors, hitMeshes, adcScale, pixelMaterial) {
   var hitIndex = gui.add(metadata, 'Hit index', 0, 1000000).step(1);
-  var nextNhits = gui.add(metadata, 'Next cluster');
-  var nextGap = gui.add(metadata, 'Next anticluster');
+  var nextGap = gui.add(metadata, 'Next event');
+  var nextNhits = gui.add(metadata, 'Next hits');
   var cameraReseter = gui.add(metadata, 'Reset camera');
   var tooltipEnable = gui.add(metadata, 'Tooltips');
   var filePicker;
@@ -697,7 +697,7 @@ var main = function() {
   global.hitMeshes = hitMeshes;
   var pixelMeshes = [];
   global.pixelMeshes = pixelMeshes;
-  var pixelMaterial = new THREE.MeshBasicMaterial({color:0x00ff00});
+  var pixelMaterial = new THREE.MeshBasicMaterial({color:0x888888});
   var metadata = {
     'Hit index': 0,
     'min_index': 0,
@@ -707,10 +707,10 @@ var main = function() {
     'Time cut': 100,
     'Z scale': 1000,
     'data': [[]],
-    'Next cluster': function() {
+    'Next hits': function() {
       loadNextCluster(metadata, hitMeshes, adcScale);
     },
-    'Next anticluster': function() {
+    'Next event': function() {
       loadNextAntiCluster(metadata, hitMeshes, adcScale);
     },
     'shading': true,
@@ -725,8 +725,8 @@ var main = function() {
   };
   global.metadata = metadata;
   var gui_colors = {
-    'background': '#a7a7a7',
-    'active_pixel': '#00ff00',
+    'background': '#e7e7e7',
+    'active_pixel': '#888888',
     '_background_color': function(x) { scene.background.set(x); },
     '_backup': {},
     'Reset colors': function() {

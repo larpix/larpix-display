@@ -218,6 +218,12 @@ var resetIndexes = function(metadata, controllerMap) {
   controllerMap['min_index'].setValue(0);
   controllerMap['max_index'].setValue(metadata['data'].length);
   controllerMap['Hit index'].setValue(0);
+  if(metadata['default_hits_displayed'] > metadata['max_index']) {
+    controllerMap['Hits displayed'].setValue(metadata['max_index']);
+  }
+  else {
+    controllerMap['Hits displayed'].setValue(metadata['default_hits_displayed']);
+  }
 };
 
 var loadNextCluster = function(gui_metadata, hitMeshes, adcScale) {
@@ -705,7 +711,8 @@ var main = function() {
     'Hit index': 0,
     'min_index': 0,
     'max_index': 1000,
-    'Hits displayed': 1000,
+    'Hits displayed': 0, // set programatically from default
+    'default_hits_displayed': 1000,
     'Multiplicity cut': 10,
     'Time cut': 500,
     'Z scale': 1000,
@@ -726,6 +733,7 @@ var main = function() {
     },
     'Tooltips': true,
   };
+  metadata['Hits displayed'] = metadata['default_hits_displayed'];
   global.metadata = metadata;
   var gui_colors = {
     'background': '#e7e7e7',

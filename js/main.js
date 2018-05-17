@@ -136,7 +136,7 @@ var parseURL = function(metadata) {
   // Parse URL to see if we should load a particular event
   var currentURL = new URI(window.location.href);
   var query = currentURL.query(true);
-  for(key in metadata) {
+  for(key in controllerMap) {
     if(query.hasOwnProperty(key)) {
       var value = Number(query[key]);
       if(!value) {
@@ -306,12 +306,12 @@ var setUpGUI = function(metadata, gui, gui_colors, hitMeshes, adcScale, pixelMat
   var nextNhitsHelp = helpFolder.add(metadata, 'Cluster help');
   var nextGapHelp = helpFolder.add(metadata, 'Anticluster help');
   var controllerMap = {
+    'Data file': filePicker,
     'Hit index': hitIndex,
     'Hits displayed': nHits,
     'Multiplicity cut': clusterSize,
     'Time cut': dt,
     'Z scale': zScale,
-    'Data file': filePicker,
     'min_index': minIndex,
     'max_index': maxIndex,
   };

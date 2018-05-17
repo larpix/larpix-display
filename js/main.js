@@ -16,16 +16,16 @@ var reset_camera = function(cams) {
 };
 reset_camera(cameras);
 
-var frontLight = new THREE.DirectionalLight(0xffffff);
+var frontLight = new THREE.DirectionalLight(0xaaaaaa);
 frontLight.position.set(0, 50, 100);
 scene.add(frontLight);
-var backLight = new THREE.DirectionalLight(0xffffff);
+var backLight = new THREE.DirectionalLight(0xaaaaaa);
 backLight.position.set(0, -50, -100);
 scene.add(backLight);
-var sideLight = new THREE.DirectionalLight(0xffffff);
+var sideLight = new THREE.DirectionalLight(0xaaaaaa);
 sideLight.position.set(-300, -50, 100);
 scene.add(sideLight);
-var rightLight = new THREE.DirectionalLight(0xffffff);
+var rightLight = new THREE.DirectionalLight(0xaaaaaa);
 rightLight.position.set(300, 0, 100);
 scene.add(rightLight);
 

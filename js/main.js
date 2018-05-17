@@ -714,7 +714,7 @@ var main = function() {
     'Hits displayed': 0, // set programatically from default
     'default_hits_displayed': 1000,
     'Multiplicity cut': 10,
-    'Time cut': 500,
+    'Time cut': 200,
     'Z scale': 1000,
     'data': [[]],
     'Next hits': function() {

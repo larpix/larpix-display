@@ -42,7 +42,7 @@ var pixelOffset = {'x': -100, 'y': -100};
 
 var loadGeometry = function(geometryFile, pixelMeshes, pixelMaterial) {
   var pixelPadGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.1);
-  $.get('geometries/' + geometryFile, function(rawPixelGeometry) {
+  $.get('static/geometries/' + geometryFile, function(rawPixelGeometry) {
     for(i in pixelMeshes) {
       scene.remove(pixelMeshes[i]);
     }
@@ -168,7 +168,7 @@ var updateLegend = function(metadata) {
 };
 
 var loadFileList = function(metadata, gui, pixelMeshes, pixelMaterial, hitMeshes, adcScale) {
-  $.getJSON('data/fileList.json', function(list) {
+  $.getJSON('static/data/fileList.json', function(list) {
     metadata['fileList'] = list;
     filePicker = gui.add(metadata, 'Data file', [''].concat(getFileNames(metadata['fileList'])));
     controllerMap['Data file'] = filePicker;
@@ -203,7 +203,7 @@ var retrieveFile = function(fileName, hitMeshes, metadata, adcScale) {
     loadData(metadata, data, hitMeshes, adcScale);
   }
   else {
-  $.getJSON('data/' + fileName, function(data) {
+  $.getJSON('static/data/' + fileName, function(data) {
     try {
       localStorage.setItem(fileName, JSON.stringify(data));
     }

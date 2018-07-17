@@ -157,13 +157,13 @@ var nextGapGroupHelp = function() {
 };
 
 var updateLegend = function(metadata) {
-  var low_index = metadata['Hit index'];
-  var high_index = low_index + metadata['Hits displayed'] - 1;
-  var data = metadata['data'];
-  var unixTime_ms = data[low_index][8] / 1e6;
-  var time = new Date(unixTime_ms);
-  $('#event-time').text('Time: ' + time.toUTCString());
-  $('#event-index').text('Event index range: ' + low_index + ' -> ' + high_index);
+  //var low_index = metadata['Hit index'];
+  //var high_index = low_index + metadata['Hits displayed'] - 1;
+  //var data = metadata['data'];
+  //var unixTime_ms = data[low_index][8] / 1e6;
+  //var time = new Date(unixTime_ms);
+  //$('#event-time').text('Time: ' + time.toUTCString());
+  //$('#event-index').text('Event index range: ' + low_index + ' -> ' + high_index);
   $('#data-file').text('Data file: ' + metadata['Data file']);
 };
 
@@ -173,7 +173,7 @@ var loadFileList = function(metadata, gui, pixelMeshes, pixelMaterial, hitMeshes
     filePicker = gui.add(metadata, 'Data file', [''].concat(getFileNames(metadata['fileList'])));
     controllerMap['Data file'] = filePicker;
     filePicker.onChange(function(newFileName) {
-      retrieveFile(newFileName, hitMeshes, metadata, adcScale);
+      //retrieveFile(newFileName, hitMeshes, metadata, adcScale);
       loadGeometry(lookUpGeometry(metadata['fileList'], newFileName), pixelMeshes, pixelMaterial);
       updateURL('Data file', newFileName);
     });
@@ -277,6 +277,21 @@ var loadNextAntiCluster = function(gui_metadata, hitMeshes, adcScale) {
     clearObjects(hitMeshes);
     loadHits(gui_metadata, hitMeshes, adcScale);
 };
+
+var retrieveEvent = function(file, index, metadata, callback) {
+  $.getJSON('/data/' + file + '/event/' + index, function(data) {
+        metadata['data'] = data;
+        callback(data);
+  });
+};
+
+var loadEvent = function(metadata, hitMeshes, adcScale) {
+  retrieveEvent(metadata['Data file'], metadata['Hit index'], metadata, function() {
+    loadHits(metadata, hitMeshes, adcScale);
+  });
+};
+
+
 var updateURL = function(key, value) {
   var url = new URI(window.location.href);
   url.removeSearch(key);
@@ -285,7 +300,8 @@ var updateURL = function(key, value) {
 };
 
 var setUpGUI = function(metadata, gui, gui_colors, hitMeshes, adcScale, pixelMaterial) {
-  var hitIndex = gui.add(metadata, 'Hit index', 0, 1000000).step(1);
+  var hitIndex = gui.add(metadata, 'Hit index', 0, 100).step(1);
+  var nextGap = gui.add(metadata, 'Next event old');
   var nextGap = gui.add(metadata, 'Next event');
   var nextNhits = gui.add(metadata, 'Next hits');
   var cameraReseter = gui.add(metadata, 'Reset camera');
@@ -323,27 +339,27 @@ var setUpGUI = function(metadata, gui, gui_colors, hitMeshes, adcScale, pixelMat
   };
   hitIndex.onChange(function(newIndex) {
     clearObjects(hitMeshes);
-    loadHits(metadata, hitMeshes, adcScale);
+    loadEvent(metadata, hitMeshes, adcScale);
     updateURL('Hit index', newIndex);
   });
-  nHits.onChange(function(newNHits) {
-    clearObjects(hitMeshes);
-    loadHits(metadata, hitMeshes, adcScale);
-    updateURL('Hits displayed', newNHits);
-  });
-  zScale.onChange(function(newZScale) {
-    clearObjects(hitMeshes);
-    loadHits(metadata, hitMeshes, adcScale);
-    updateURL('Z scale', newZScale);
-  });
-  minIndex.onChange(function(newMin) {
-    controllerMap['Hit index'].__min = newMin;
-    updateURL('min_index', newMin);
-  });
-  maxIndex.onChange(function(newMax) {
-    controllerMap['Hit index'].__max = newMax;
-    updateURL('max_index', newMax);
-  });
+  //nHits.onChange(function(newNHits) {
+    //clearObjects(hitMeshes);
+    //loadHits(metadata, hitMeshes, adcScale);
+    //updateURL('Hits displayed', newNHits);
+  //});
+  //zScale.onChange(function(newZScale) {
+    //clearObjects(hitMeshes);
+    //loadHits(metadata, hitMeshes, adcScale);
+    //updateURL('Z scale', newZScale);
+  //});
+  //minIndex.onChange(function(newMin) {
+    //controllerMap['Hit index'].__min = newMin;
+    //updateURL('min_index', newMin);
+  //});
+  //maxIndex.onChange(function(newMax) {
+    //controllerMap['Hit index'].__max = newMax;
+    //updateURL('max_index', newMax);
+  //});
   useLambertMaterial.onChange(function(newUseLambertMaterial) {
     clearObjects(hitMeshes);
     loadHits(metadata, hitMeshes, adcScale);
@@ -510,8 +526,8 @@ var setUpRuler = function() {
 };
 function loadHits(gui_metadata, hitMeshes, adcScale) {
   var data = gui_metadata['data'];
-  index = gui_metadata['Hit index'];
-  nhits = gui_metadata['Hits displayed'];
+  index = 0//gui_metadata['Hit index'];
+  nhits = 1000//gui_metadata['Hits displayed'];
   zDivisor = gui_metadata['Z scale'];
   useLambert = gui_metadata['shading'];
   timeScaleMesh.scale.z = 1000/zDivisor;
@@ -720,8 +736,11 @@ var main = function() {
     'Next hits': function() {
       loadNextCluster(metadata, hitMeshes, adcScale);
     },
-    'Next event': function() {
+    'Next event old': function() {
       loadNextAntiCluster(metadata, hitMeshes, adcScale);
+    },
+    'Next event': function() {
+      controllerMap['Hit index'].setValue(metadata['Hit index']+1);
     },
     'shading': true,
     'Cluster help': nextGroupHelp,

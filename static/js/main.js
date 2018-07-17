@@ -168,7 +168,7 @@ var updateLegend = function(metadata) {
 };
 
 var loadFileList = function(metadata, gui, pixelMeshes, pixelMaterial, hitMeshes, adcScale) {
-  $.getJSON('static/data/fileList.json', function(list) {
+  $.getJSON('/files', function(list) {
     metadata['fileList'] = list;
     filePicker = gui.add(metadata, 'Data file', [''].concat(getFileNames(metadata['fileList'])));
     controllerMap['Data file'] = filePicker;
@@ -203,7 +203,7 @@ var retrieveFile = function(fileName, hitMeshes, metadata, adcScale) {
     loadData(metadata, data, hitMeshes, adcScale);
   }
   else {
-  $.getJSON('static/data/' + fileName, function(data) {
+  $.getJSON('/data/' + fileName, function(data) {
     try {
       localStorage.setItem(fileName, JSON.stringify(data));
     }

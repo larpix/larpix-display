@@ -71,67 +71,6 @@ var loadGeometry = function(geometryFile, pixelMeshes, pixelMaterial) {
 };
 
 
-/**
- * Find the next group of data points (after index <start>) with <n>
- * hits within time window <dt>.
- */
-var nextGroup = function(data, start, n, dt) {
-  index = start;
-  time = 8;
-  t0 = data[index][time];
-  maxIndex = data.length - n;
-  groupSize = 1;
-  while(groupSize < n && index < maxIndex) {
-    nextEvent = data[index + groupSize];
-    if(Math.abs(nextEvent[time] - t0) < dt) {
-      // Then look for more events all within dt
-      groupSize++;
-    }
-    else {
-      // Then pick the next t0 and start again
-      index++;
-      groupSize = 1;
-      t0 = data[index][time];
-    }
-  }
-  return index;
-};
-
-var nextGroupHelp = function() {
-  helpText = 'Display the next cluster of hits all within a given time window.';
-  helpText += '\n\n';
-  helpText += '- dt is the time window in microseconds\n';
-  helpText += '- cluster_size is the number of hits required within dt\n';
-  helpText += '- nhits is the number of hits to display\n';
-  alert(helpText);
-};
-
-/**
- * Find all of the hits between the next time gap of <dt> and the time gap
- * after that.
- */
-var nextGapGroup = function(data, start, dt) {
-  time = 8;
-  /*
-   * Return the last index before a big gap of dt
-   */
-  var findNextGap = function(data, sub_start, dt) {
-    sub_index = sub_start
-    // Find the next gap
-    t0 = data[sub_index][time];
-    t1 = data[sub_index+1][time];
-    while(t1 - t0 < dt && sub_index < data.length-1) {
-      sub_index++;
-      t0 = t1;
-      t1 = data[sub_index+1][time];
-    }
-    return sub_index;
-  }
-  first_good_hit = findNextGap(data, start, dt) + 1;
-  last_good_hit = findNextGap(data, first_good_hit, dt);
-  return [first_good_hit, last_good_hit];
-};
-
 var parseURL = function(metadata) {
   // Parse URL to see if we should load a particular event
   var currentURL = new URI(window.location.href);
@@ -145,15 +84,6 @@ var parseURL = function(metadata) {
       controllerMap[key].setValue(value);
     }
   }
-};
-
-var nextGapGroupHelp = function() {
-  helpText = 'Display the next hit group with large empty gaps before and after.';
-  helpText += '\n\n';
-  helpText += '- dt is the time separation before or after the hit group\n';
-  helpText += '- cluster_size is the minimum number of hits in the group\n';
-  helpText += '- nhits will display the number of hits in the group\n';
-  alert(helpText);
 };
 
 var updateLegend = function(metadata) {
@@ -173,7 +103,6 @@ var loadFileList = function(metadata, gui, pixelMeshes, pixelMaterial, hitMeshes
     filePicker = gui.add(metadata, 'Data file', [''].concat(getFileNames(metadata['fileList'])));
     controllerMap['Data file'] = filePicker;
     filePicker.onChange(function(newFileName) {
-      //retrieveFile(newFileName, hitMeshes, metadata, adcScale);
       loadGeometry(lookUpGeometry(metadata['fileList'], newFileName), pixelMeshes, pixelMaterial);
       updateURL('Data file', newFileName);
     });
@@ -194,88 +123,6 @@ var lookUpGeometry = function(fileList, fileName) {
       return info['geometry'];
     }
   }
-};
-
-
-var retrieveFile = function(fileName, hitMeshes, metadata, adcScale) {
-  if(localStorage.getItem(fileName)) {
-    var data = JSON.parse(localStorage.getItem(fileName));
-    loadData(metadata, data, hitMeshes, adcScale);
-  }
-  else {
-  $.getJSON('/data/' + fileName, function(data) {
-    try {
-      localStorage.setItem(fileName, JSON.stringify(data));
-    }
-    finally {
-      loadData(metadata, data, hitMeshes, adcScale);
-    }
-  });
-  }
-};
-
-var resetIndexes = function(metadata, controllerMap) {
-  controllerMap['min_index'].setValue(0);
-  controllerMap['max_index'].setValue(metadata['data'].length);
-  controllerMap['Hit index'].setValue(0);
-  if(metadata['default_hits_displayed'] > metadata['max_index']) {
-    controllerMap['Hits displayed'].setValue(metadata['max_index']);
-  }
-  else {
-    controllerMap['Hits displayed'].setValue(metadata['default_hits_displayed']);
-  }
-};
-
-var loadNextCluster = function(gui_metadata, hitMeshes, adcScale) {
-    var data = gui_metadata.data;
-    index = gui_metadata['Hit index'] + gui_metadata['Multiplicity cut'];
-    nhits = gui_metadata['Multiplicity cut'];
-    dt = gui_metadata['Time cut'] * 1000;
-    indexController = controllerMap['Hit index'];
-    next_index = nextGroup(data, index, nhits, dt);
-    gui_metadata.max_index = next_index + 3*gui_metadata['Hits displayed'];
-    indexController.__max = gui_metadata.max_index;
-    gui_metadata.min_index = next_index - 3*gui_metadata['Hits displayed'];
-    indexController.__min = gui_metadata.min_index;
-    gui_metadata['Hit index'] = next_index;
-    for(var key in controllerMap) {
-      if(key === 'Data file') {
-        continue;
-      }
-      controller = controllerMap[key];
-      controller.setValue(controller.getValue());
-    }
-    clearObjects(hitMeshes);
-    loadHits(gui_metadata, hitMeshes, adcScale);
-};
-
-var loadNextAntiCluster = function(gui_metadata, hitMeshes, adcScale) {
-    var data = gui_metadata.data;
-    index = gui_metadata['Hit index'];
-    dt = gui_metadata['Time cut'] * 1000;
-    indexController = controllerMap['Hit index'];
-    good_range = [];
-    nhits = 0;
-    while(nhits < gui_metadata['Multiplicity cut']) {
-      good_range = nextGapGroup(data, index, dt);
-      nhits = good_range[1] - good_range[0] + 1;
-      index = good_range[0];
-    }
-    gui_metadata['Hits displayed'] = nhits;
-    gui_metadata.max_index = good_range[1] + 2*nhits;
-    gui_metadata.min_index = good_range[0] - 2*nhits;
-    indexController.__max = gui_metadata.max_index;
-    indexController.__min = gui_metadata.min_index;
-    gui_metadata['Hit index'] = good_range[0];
-    for(var key in controllerMap) {
-      if(key === 'Data file') {
-        continue;
-      }
-      controller = controllerMap[key];
-      controller.setValue(controller.getValue());
-    }
-    clearObjects(hitMeshes);
-    loadHits(gui_metadata, hitMeshes, adcScale);
 };
 
 var retrieveEvent = function(file, index, metadata, callback) {
@@ -301,23 +148,16 @@ var updateURL = function(key, value) {
 
 var setUpGUI = function(metadata, gui, gui_colors, hitMeshes, adcScale, pixelMaterial) {
   var hitIndex = gui.add(metadata, 'Hit index', 0, 100).step(1);
-  var nextGap = gui.add(metadata, 'Next event old');
   var nextGap = gui.add(metadata, 'Next event');
-  var nextNhits = gui.add(metadata, 'Next hits');
   var cameraReseter = gui.add(metadata, 'Reset camera');
   var tooltipEnable = gui.add(metadata, 'Tooltips');
   var filePicker;
 
   var detailsFolder = gui.addFolder('Details');
   var colorsFolder = gui.addFolder('Colors');
-  var helpFolder = gui.addFolder('Help');
 
   var nHits = detailsFolder.add(metadata, 'Hits displayed', 0).step(1);
-  var clusterSize = detailsFolder.add(metadata, 'Multiplicity cut', 0).step(1);
-  var dt = detailsFolder.add(metadata, 'Time cut').step(1);
   var zScale = detailsFolder.add(metadata, 'Z scale', 100, 5000).step(50);
-  var minIndex = detailsFolder.add(metadata, 'min_index', 0, 1000000).step(1);
-  var maxIndex = detailsFolder.add(metadata, 'max_index', 0, 1000000).step(1);
 
   var useLambertMaterial = colorsFolder.add(metadata, 'shading');
   var color_background = colorsFolder.addColor(gui_colors, 'background').listen();
@@ -325,41 +165,17 @@ var setUpGUI = function(metadata, gui, gui_colors, hitMeshes, adcScale, pixelMat
   var isNight = colorsFolder.add(gui_colors, 'Night mode').listen();
   var colorReseter = colorsFolder.add(gui_colors, 'Reset colors');
 
-  var nextNhitsHelp = helpFolder.add(metadata, 'Cluster help');
-  var nextGapHelp = helpFolder.add(metadata, 'Anticluster help');
   var controllerMap = {
     'Data file': filePicker,
     'Hit index': hitIndex,
     'Hits displayed': nHits,
-    'Multiplicity cut': clusterSize,
-    'Time cut': dt,
     'Z scale': zScale,
-    'min_index': minIndex,
-    'max_index': maxIndex,
   };
   hitIndex.onChange(function(newIndex) {
     clearObjects(hitMeshes);
     loadEvent(metadata, hitMeshes, adcScale);
     updateURL('Hit index', newIndex);
   });
-  //nHits.onChange(function(newNHits) {
-    //clearObjects(hitMeshes);
-    //loadHits(metadata, hitMeshes, adcScale);
-    //updateURL('Hits displayed', newNHits);
-  //});
-  //zScale.onChange(function(newZScale) {
-    //clearObjects(hitMeshes);
-    //loadHits(metadata, hitMeshes, adcScale);
-    //updateURL('Z scale', newZScale);
-  //});
-  //minIndex.onChange(function(newMin) {
-    //controllerMap['Hit index'].__min = newMin;
-    //updateURL('min_index', newMin);
-  //});
-  //maxIndex.onChange(function(newMax) {
-    //controllerMap['Hit index'].__max = newMax;
-    //updateURL('max_index', newMax);
-  //});
   useLambertMaterial.onChange(function(newUseLambertMaterial) {
     clearObjects(hitMeshes);
     loadHits(metadata, hitMeshes, adcScale);
@@ -596,15 +412,6 @@ function notifyIfHidden(hitMeshes) {
   }
 };
 
-var loadData = function(metadata, data, hitMeshes, adcScale) {
-  metadata['data'] = data;
-  loadHits(metadata, hitMeshes, adcScale);
-  controllerMap['Hit index'].__max = data.length;
-  controllerMap['min_index'].__max = data.length;
-  controllerMap['max_index'].__max = data.length;
-  resetIndexes(metadata, controllerMap);
-};
-
 var setUpLegend = function() {
   $('body').append('<div id="legend"></div>');
   legend = $('#legend');
@@ -725,26 +532,14 @@ var main = function() {
   var pixelMaterial = new THREE.MeshBasicMaterial({color:0x888888});
   var metadata = {
     'Hit index': 0,
-    'min_index': 0,
-    'max_index': 1000,
     'Hits displayed': 0, // set programatically from default
     'default_hits_displayed': 1000,
-    'Multiplicity cut': 10,
-    'Time cut': 200,
     'Z scale': 1000,
     'data': [[]],
-    'Next hits': function() {
-      loadNextCluster(metadata, hitMeshes, adcScale);
-    },
-    'Next event old': function() {
-      loadNextAntiCluster(metadata, hitMeshes, adcScale);
-    },
     'Next event': function() {
       controllerMap['Hit index'].setValue(metadata['Hit index']+1);
     },
     'shading': true,
-    'Cluster help': nextGroupHelp,
-    'Anticluster help': nextGapGroupHelp,
     'Data file': '',
     'fileList': [],
     'Reset camera': function() {

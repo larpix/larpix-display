@@ -37,3 +37,20 @@ def load_event(filename, event_index):
             t = int(t-t0)
             list_to_json.append([0, 0, 0, x, y, 0, 0, 0, t, 0, q, 0])
     return json.dumps(list_to_json)
+
+@app.route('/data/<filename>/tracks/<event_index>')
+def load_tracks(filename, event_index):
+    event_index = int(event_index)
+    with h5py.File('static/data/' + filename, 'r') as f:
+        events = f['events']
+        event = events[event_index]
+        tracks = f['tracks']
+        has_tracks = bool(event['track_ref'])
+        track_list = []
+        if has_tracks:
+            for track in tracks[event['track_ref']]:
+                track_list.append({
+                    'start': track['start'].tolist(),
+                    'end': track['end'].tolist()
+                })
+    return json.dumps(track_list)

@@ -125,19 +125,53 @@ var lookUpGeometry = function(fileList, fileName) {
   }
 };
 
-var retrieveEvent = function(file, index, metadata, callback) {
-  $.getJSON('/data/' + file + '/event/' + index, function(data) {
-        metadata['data'] = data;
-        callback(data);
+var retrieve = function(file, query, index, callback) {
+  $.getJSON('/data/' + file + '/' + query + '/' + index, function(data) {
+    callback(data);
   });
 };
 
 var loadEvent = function(metadata, hitMeshes, adcScale) {
-  retrieveEvent(metadata['Data file'], metadata['Hit index'], metadata, function() {
+  retrieve(metadata['Data file'], 'event', metadata['Hit index'], function(data) {
+    metadata['data'] = data;
     loadHits(metadata, hitMeshes, adcScale);
+    if(metadata['Show tracks']) {
+      loadTracks(metadata);
+    }
   });
 };
 
+var loadTracks = function(metadata) {
+  retrieve(metadata['Data file'], 'tracks', metadata['Hit index'], function(data) {
+    tracks = createTrackObjects(data);
+    metadata['tracks'] = tracks;
+    for(var i in tracks) {
+      scene.add(tracks[i]);
+    }
+  });
+};
+
+var newVector = function(points) {
+  return new THREE.Vector3(points[0], points[1], points[2]);
+};
+
+var createTrackObjects = function(tracks) {
+  trackObjects = [];
+  var lineMaterial = new THREE.LineBasicMaterial({color: 0xff0000, linewidth:2});
+  for(var i in tracks) {
+    track = tracks[i];
+    start_point = track['start'];
+    start_point[0] += pixelOffset.x;
+    start_point[1] += pixelOffset.y;
+    end_point = track['end'];
+    end_point[0] += pixelOffset.x;
+    end_point[1] += pixelOffset.y;
+    var lineGeometry = new THREE.Geometry();
+    lineGeometry.vertices.push(newVector(start_point), newVector(end_point));
+    trackObjects.push(new THREE.Line(lineGeometry, lineMaterial));
+  }
+  return trackObjects;
+};
 
 var updateURL = function(key, value) {
   var url = new URI(window.location.href);
@@ -151,6 +185,7 @@ var setUpGUI = function(metadata, gui, gui_colors, hitMeshes, adcScale, pixelMat
   var nextGap = gui.add(metadata, 'Next event');
   var cameraReseter = gui.add(metadata, 'Reset camera');
   var tooltipEnable = gui.add(metadata, 'Tooltips');
+  var showTracks = gui.add(metadata, 'Show tracks');
   var filePicker;
 
   var detailsFolder = gui.addFolder('Details');
@@ -173,8 +208,17 @@ var setUpGUI = function(metadata, gui, gui_colors, hitMeshes, adcScale, pixelMat
   };
   hitIndex.onChange(function(newIndex) {
     clearObjects(hitMeshes);
+    clearObjects(metadata['tracks']);
     loadEvent(metadata, hitMeshes, adcScale);
     updateURL('Hit index', newIndex);
+  });
+  showTracks.onChange(function(enable) {
+    if(enable) {
+      loadTracks(metadata);
+    }
+    else {
+      clearObjects(metadata['tracks']);
+    }
   });
   useLambertMaterial.onChange(function(newUseLambertMaterial) {
     clearObjects(hitMeshes);
@@ -532,10 +576,12 @@ var main = function() {
   var pixelMaterial = new THREE.MeshBasicMaterial({color:0x888888});
   var metadata = {
     'Hit index': 0,
+    'Show tracks': false,
     'Hits displayed': 0, // set programatically from default
     'default_hits_displayed': 1000,
     'Z scale': 1000,
     'data': [[]],
+    'tracks':[],
     'Next event': function() {
       controllerMap['Hit index'].setValue(metadata['Hit index']+1);
     },

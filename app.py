@@ -54,3 +54,10 @@ def load_tracks(filename, event_index):
                     'end': track['end'].tolist()
                 })
     return json.dumps(track_list)
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--port', type=int, default=5000)
+    args = parser.parse_args()
+    app.run(port=args.port)

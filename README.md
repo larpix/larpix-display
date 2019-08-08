@@ -24,56 +24,26 @@ correct permissions.
 
 ## LArPix data files
 
-This event display loads up JSON files, so you'll have to dump the
-LArPix .dat files into JSON files. It's relatively simple to do this in
-Python once you've converted the .dat files into either ROOT or HDF5
-formats. In [larpix-scripts](https://github.com/samkohn/larpix-scripts),
-there is a simple Python script for converting from HDF5 to JSON, assuming the
-HDF5 file was created using ``dat2h5.py`` with the calibration option. The
-expected JSON structure is a simple set of nested arrays, one sub-list
-per pixel hit, as shown below.
-
-```json
-[
-  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],  # event 0
-  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],  # event 1
-   ...etc
-]
-```
-
-The structure for each sub-list is:
-
-```
-0. channel id
-1. chip id
-2. pixel id
-3. 10*(pixel x in mm)
-4. 10*(pixel y in mm)
-5. "raw" ADC counts (from packet)
-6. "raw" timestamp (from packet)
-7. corrected 6-bit ADC counts
-8. corrected timestamp (nanoseconds since UNIX epoch)
-9. serial index (internal larpix-control ordering)
-10. raw signal voltage (mV)
-11. pedestal voltage (mV)
-```
-
-The color scale on the event display is given by ``hit[10] - hit[11]``,
-in mV.
+This event loads LArPix Event HDF5 files, createable from a LArPix+HDF5
+file using the scripts here (TODO: add link).
 
 ### Data file index
 
-The data files should be stored in the ``data`` directory. In addition,
+The data files should be stored in the ``static/data`` directory. In addition,
 a new file called ``fileList.json`` must be manually added to the
 ``data`` directory. This file contains a listing of all the data files
 and also associates a geometry file to each data file. An example
 ``fileList.json`` file is located at ``data/fileList.json.example``.
 
+The geometry files must be copied from LArPix Geometry and renamed to
+have a ``.txt`` extension.
+
 ## Basic usage
 
-Navigate in your browser to ``index.html``, either by dragging the file
-onto a browser window, or by navigating to the absolute path of the
-file, ``file:///global/absolute/path/index.html``.
+Run ``python app.py`` (optionally specify a port other than 5000 using
+e.g. ``-p 5001``.
+
+Navigate in your browser to ``localhost:5000`` (or whatever custom port you used).
 
 Select a data file to load using the drop-down menu at the top right.
 

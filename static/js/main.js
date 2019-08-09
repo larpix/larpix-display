@@ -523,7 +523,11 @@ function checkMouseHoverOver() {
 function getHitInformation(hitMesh) {
   var hitData = hitMesh.object.hitData;
   var t0 = hitMesh.object.t0;
+  var hit = hitMesh.object.hitData;
+  var channel = hit[0];
+  var chipid = hit[1];
   var toReturn = '' + (hitData[10] - hitData[11]) + 'mV (' + hitData[7] + 'ADC)';
+  toReturn += ' Chip ' + chipid + ', channel ' + channel;
   return toReturn;
 };
 

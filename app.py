@@ -31,11 +31,13 @@ def load_event(filename, event_index):
         hits = f['hits']
         event_hits = hits[event['hit_ref']]
         t0 = min(event_hits['ts'])
+
         list_to_json = []
-        for row in event_hits[['px', 'py', 'ts', 'q']]:
-            x, y, t, q = [int(a) for a in row]
+        for row in event_hits[['px', 'py', 'ts', 'q', 'channelid',
+            'chipid']]:
+            x, y, t, q, channel, chip = [int(a) for a in row]
             t = int(t-t0)
-            list_to_json.append([0, 0, 0, x, y, 0, 0, 0, t, 0, q, 0])
+            list_to_json.append([channel, chip, 0, x, y, 0, 0, 0, t, 0, q, 0])
     return json.dumps(list_to_json)
 
 @app.route('/data/<filename>/tracks/<event_index>')

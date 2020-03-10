@@ -38,8 +38,7 @@ renderer.autoClear = false;
 scene.background = new THREE.Color(0xe7e7e7);
 orthographicControls = new THREE.OrbitControls(orthographicCamera, renderer.domElement);
 
-//var pixelOffset = {'x': -100, 'y': -100};
-var pixelOffset = {'x': 0, 'y': 0};
+var pixelOffset = {'x': -100, 'y': -100};
 
 var loadGeometry = function(geometryFile, pixelMeshes, pixelMaterial) {
   var pixelPadGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.1);
@@ -53,6 +52,13 @@ var loadGeometry = function(geometryFile, pixelMeshes, pixelMaterial) {
     activePixels = []
     for(var i in chips) {
       activePixels = activePixels.concat(chips[i][1]);
+    }
+    if ('width' in pixelGeometry) {
+      pixelOffset.x = pixelGeometry['x'] + pixelGeometry['width']/2;
+      pixelOffset.y = pixelGeometry['y'] + pixelGeometry['height']/2;
+    } else {
+      pixelOffset.x = -100;
+      pixelOffset.y = -100;
     }
     for(var i = 0; i < pixels.length; i++) {
       pixel = pixels[i];

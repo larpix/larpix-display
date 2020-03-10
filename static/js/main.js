@@ -38,7 +38,8 @@ renderer.autoClear = false;
 scene.background = new THREE.Color(0xe7e7e7);
 orthographicControls = new THREE.OrbitControls(orthographicCamera, renderer.domElement);
 
-var pixelOffset = {'x': -100, 'y': -100};
+//var pixelOffset = {'x': -100, 'y': -100};
+var pixelOffset = {'x': 0, 'y': 0};
 
 var loadGeometry = function(geometryFile, pixelMeshes, pixelMaterial) {
   var pixelPadGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.1);
@@ -338,8 +339,13 @@ var setUpColorScale = function() {
   return adcScale;
 };
 
+var x_center_ruler = -50
+var y_center_ruler = -50
+var z_center_ruler = 0
+
 var setUpRuler = function() {
   // Set up the ruler
+
   rulerMaterial = new THREE.LineBasicMaterial({color: 0x000000, linewidth: 3});
   rulerGeometry = new THREE.Geometry();
   rulerGeometry.vertices.push(new THREE.Vector3(0, 0, -5), new THREE.Vector3(0, 0, 5));
@@ -347,11 +353,15 @@ var setUpRuler = function() {
   timeScaleMesh = new THREE.Line(rulerGeometry, rulerMaterial);
   xScaleMesh = new THREE.Line(rulerGeometry, rulerMaterial);
   yScaleMesh = new THREE.Line(rulerGeometry, rulerMaterial);
-  timeScaleMesh.position.set(-50, -30, 5);
+  timeScaleMesh.rotation.z = 0;
+  // timeScaleMesh.position.set(-50, -30, 5);
+  timeScaleMesh.position.set(x_center_ruler,y_center_ruler,z_center_ruler);
   xScaleMesh.rotation.y = 3.14159/2;
-  xScaleMesh.position.set(-45, -30, 0);
+  // xScaleMesh.position.set(-45, -30, 0);
+  xScaleMesh.position.set(x_center_ruler+5,y_center_ruler,z_center_ruler);
   yScaleMesh.rotation.x = 3.14159/2;
-  yScaleMesh.position.set(-50, -25, 0);
+  // yScaleMesh.position.set(-50, -25, 0);
+  yScaleMesh.position.set(x_center_ruler,y_center_ruler+5,z_center_ruler);
   scene.add(timeScaleMesh);
   scene.add(xScaleMesh);
   scene.add(yScaleMesh);
@@ -366,9 +376,9 @@ var setUpRuler = function() {
   material = new THREE.SpriteMaterial({ map: texture, useScreenCoordinates: false });
   var xsprite = new THREE.Sprite(material);
   xsprite.scale.set(10, 10, 1);
-  xsprite.position.set(-40, -30, 0);
+  xsprite.position.set(x_center_ruler,y_center_ruler+5,z_center_ruler);
   var ysprite = xsprite.clone();
-  ysprite.position.set(-50, -24, 0);
+  ysprite.position.set(x_center_ruler+5, y_center_ruler, z_center_ruler);
   canvas = document.createElement('canvas');
   context = canvas.getContext('2d');
   context.font = '60px Helvetica';
@@ -379,7 +389,7 @@ var setUpRuler = function() {
   material = new THREE.SpriteMaterial({ map: texture, useScreenCoordinates: false });
   var zsprite = new THREE.Sprite(material);
   zsprite.scale.set(10, 10, 1);
-  zsprite.position.set(-50, -30, 10);
+  zsprite.position.set(x_center_ruler, y_center_ruler, z_center_ruler+5);
   scene.add(xsprite);
   scene.add(ysprite);
   scene.add(zsprite);
@@ -391,7 +401,7 @@ function loadHits(gui_metadata, hitMeshes, adcScale) {
   zDivisor = gui_metadata['Z scale'];
   useLambert = gui_metadata['shading'];
   timeScaleMesh.scale.z = 1000/zDivisor;
-  timeScaleMesh.position.set(-50, -30, 10*timeScaleMesh.scale.z/2);
+  timeScaleMesh.position.set(x_center_ruler, y_center_ruler, z_center_ruler+10*timeScaleMesh.scale.z/2);
   var MeshMaterial = null;
   if(useLambert) {
     MeshMaterial = THREE.MeshLambertMaterial;
